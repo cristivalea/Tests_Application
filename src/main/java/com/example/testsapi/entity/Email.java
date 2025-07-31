@@ -7,17 +7,17 @@ import jakarta.persistence.*;
 @Table(name = "email")
 public class Email {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idUser", referencedColumnName = "idUser")
     private User user;
 
-
-    @Column(name = "email")
+    @Column(name = "email", nullable = false)
     private String email;
-    @Id
-    private Long id;
 
-    // Constructori
     public Email() {}
 
     public Email(User user, String email) {

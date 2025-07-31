@@ -1,22 +1,32 @@
 package com.example.testsapi.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @Column(name = "idUser", length = 6)
     private String idUser;
 
-
+    @NotBlank
+    @Size(max = 50)
     @Column(name = "firstName")
     private String firstName;
 
+    @NotBlank
+    @Size(max = 200)
     @Column(name = "secondName")
     private String secondName;
 
@@ -26,21 +36,36 @@ public class User {
     @Column(name = "registrationDate")
     private LocalDate registrationDate;
 
-
+    @NotBlank
+    @Size(max = 20)
     @Column(name = "phoneNumber")
     private String phoneNumber;
 
-
+    @NotBlank
+    @Size(max = 50)
     @Column(name = "username", unique = true)
     private String username;
 
-
-    @Column(name = "passsword") // Notă: typo din baza de date existentă
+    @NotBlank
+    @Size(max = 500)
+    @Column(name = "passsword")
     private String password;
 
-    // Relații - le vom adăuga mai târziu
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Email> emails;
+
+    // Câmpuri pentru Spring Security (nu sunt în baza de date)
+    @Transient
+    private boolean enabled = true;
+
+    @Transient
+    private boolean accountNonExpired = true;
+
+    @Transient
+    private boolean accountNonLocked = true;
+
+    @Transient
+    private boolean credentialsNonExpired = true;
 
     // Constructori
     public User() {}
@@ -54,7 +79,36 @@ public class User {
         this.registrationDate = LocalDate.now();
     }
 
-    // Getters și Setters
+    // Implementarea UserDetails
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() { return accountNonExpired; }
+
+    @Override
+    public boolean isAccountNonLocked() { return accountNonLocked; }
+
+    @Override
+    public boolean isCredentialsNonExpired() { return credentialsNonExpired; }
+
+    @Override
+    public boolean isEnabled() { return enabled; }
+
+    // Metode utilitare
+    public String getFullName() {
+        return firstName + " " + secondName;
+    }
+
+    public String getPrimaryEmail() {
+        return emails != null && !emails.isEmpty()
+                ? emails.iterator().next().getEmail()
+                : null;
+    }
+
+    // Getters și Setters (păstrați din versiunea anterioară)
     public String getIdUser() { return idUser; }
     public void setIdUser(String idUser) { this.idUser = idUser; }
 
@@ -82,6 +136,11 @@ public class User {
     public Set<Email> getEmails() { return emails; }
     public void setEmails(Set<Email> emails) { this.emails = emails; }
 
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    public void setAccountNonExpired(boolean accountNonExpired) { this.accountNonExpired = accountNonExpired; }
+    public void setAccountNonLocked(boolean accountNonLocked) { this.accountNonLocked = accountNonLocked; }
+    public void setCredentialsNonExpired(boolean credentialsNonExpired) { this.credentialsNonExpired = credentialsNonExpired; }
+
     @PrePersist
     public void prePersist() {
         if (registrationDate == null) {
@@ -94,4 +153,11 @@ public class User {
         return String.format("User{idUser='%s', username='%s', firstName='%s', secondName='%s'}",
                 idUser, username, firstName, secondName);
     }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<SecurityQuestion> securityQuestions;
+
+    public Set<SecurityQuestion> getSecurityQuestions() { return securityQuestions; }
+    public void setSecurityQuestions(Set<SecurityQuestion> securityQuestions) { this.securityQuestions = securityQuestions; }
+
 }

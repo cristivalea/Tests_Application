@@ -6,7 +6,8 @@ spring:
     url: jdbc:mysql://localhost:3306/tests_app?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     driverClassName: com.mysql.cj.jdbc.Driver
     username: root
-    password: ""
+    password: # PAROLA VOASTRĂ MYSQL
+
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
@@ -18,8 +19,14 @@ spring:
       hibernate:
         format_sql: true
 
+# JWT Configuration
+jwt:
+  secret: mySecretKey12345678901234567890123456789012345678901234567890
+  expiration: 86400 # 24 ore în secunde
 
+# Logging
 logging:
   level:
-    org.springframework.boot.autoconfigure: DEBUG
+    org.springframework.security: DEBUG
+    com.example: DEBUG
     org.hibernate.SQL: DEBUG
