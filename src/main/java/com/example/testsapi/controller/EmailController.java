@@ -1,6 +1,9 @@
 package com.example.testsapi.controller;
 
+import com.example.testsapi.dto.EmailRequest;
+import com.example.testsapi.entity.Email;
 import com.example.testsapi.service.EmailService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,11 +14,21 @@ import java.util.List;
 @RequestMapping("/emails")
 public class EmailController {
 
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getEmailsForUser(@PathVariable String userId) {
-        return ResponseEntity.ok(emailService.getEmailsByUserId(userId));
+    public EmailController(EmailService emailService) {
+        this.emailService = emailService;
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<String> getEmailByUserId(@PathVariable String userId) {
+        String email = emailService.getEmailByUserId(userId);
+        return ResponseEntity.ok(email);
+    }
+
+    @PostMapping
+    public ResponseEntity<Email> addEmail(@Valid @RequestBody EmailRequest request) {
+        Email savedEmail = emailService.addEmail(request.getUserId(), request.getAddress());
+        return ResponseEntity.ok(savedEmail);
     }
 }

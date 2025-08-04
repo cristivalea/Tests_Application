@@ -82,10 +82,10 @@ public class AuthController {
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
 
-        if (emailRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
-        }
+//        if (emailRepository.existsByEmail(signUpRequest.getEmail())) {
+//            return ResponseEntity.badRequest()
+//                    .body(new MessageResponse("Error: Email is already in use!"));
+//        }
 
         try {
             // Generăm ID-ul utilizatorului
