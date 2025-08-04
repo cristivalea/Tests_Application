@@ -46,5 +46,20 @@ public class EmailService {
         return emailRepository.save(email1);
     }
 
+    public void deleteEmail(String userId){
+        if (userId == null || userId.isEmpty()) {
+            throw new IllegalArgumentException("UserId must not be null or empty");
+        }
+
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (!userOpt.isPresent()) {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
+        Email email = emailRepository.findByUserId(userId);
+        if(email == null){
+            System.err.println("Error search email - delete");
+        }
+        emailRepository.delete(email);
+    }
 }
 

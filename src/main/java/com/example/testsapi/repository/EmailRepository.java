@@ -15,5 +15,4 @@ public interface EmailRepository extends JpaRepository<Email, Long> {
 
     Email findByUserId(@Param("userId") String userId);
 
-
 }

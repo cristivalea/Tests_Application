@@ -76,22 +76,14 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        // Verificări existență
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
 
-//        if (emailRepository.existsByEmail(signUpRequest.getEmail())) {
-//            return ResponseEntity.badRequest()
-//                    .body(new MessageResponse("Error: Email is already in use!"));
-//        }
-
         try {
-            // Generăm ID-ul utilizatorului
             String userId = userIdGeneratorService.generateNextUserId();
 
-            // Crearea unui utilizator nou
             User user = new User(userId,
                     signUpRequest.getFirstName(),
                     signUpRequest.getSecondName(),
@@ -102,10 +94,8 @@ public class AuthController {
             user.setPhoneNumber(signUpRequest.getPhoneNumber());
             user.setRegistrationDate(LocalDate.now());
 
-            // Salvăm utilizatorul
             user = userRepository.save(user);
 
-            // Adăugăm emailul
             Email email = new Email(user, signUpRequest.getEmail());
             emailRepository.save(email);
 
