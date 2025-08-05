@@ -10,7 +10,7 @@ public class SecurityQuestion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "question_id")  // coloana corectă în DB
+    @Column(name = "question_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
