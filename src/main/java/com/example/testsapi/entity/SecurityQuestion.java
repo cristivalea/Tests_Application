@@ -2,6 +2,7 @@ package com.example.testsapi.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -27,6 +28,11 @@ public class SecurityQuestion {
     @Column(name = "response")
     private String response;
 
+    @NotNull(message = "Status must not be null")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private Status status;
+
     // Constructori
     public SecurityQuestion() {}
 
@@ -48,4 +54,12 @@ public class SecurityQuestion {
 
     public String getResponse() { return response; }
     public void setResponse(String response) { this.response = response; }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 }

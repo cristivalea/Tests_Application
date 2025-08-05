@@ -1,13 +1,14 @@
 package com.example.testsapi.controller;
 
+import com.example.testsapi.dto.EmailRequest;
+import com.example.testsapi.dto.SecurityQuestionRequest;
+import com.example.testsapi.entity.Email;
 import com.example.testsapi.entity.Pair;
 import com.example.testsapi.entity.SecurityQuestion;
 import com.example.testsapi.service.SecurityQuestionService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,5 +25,11 @@ public class SecurityQuestionController {
     public ResponseEntity<List<Pair<String, String>>> getSecurityQuestionsByUserId(@PathVariable String userId) {
         List<Pair<String, String>> securityQuestions = securityQuestionService.getSecurityQuestions(userId);
         return ResponseEntity.ok(securityQuestions);
+    }
+
+    @PostMapping
+    public ResponseEntity<SecurityQuestion> addSequrityQuestion(@Valid @RequestBody SecurityQuestionRequest request) {
+        SecurityQuestion secQuestSaved = securityQuestionService.addSecurityQuestion(request.getUserId(), request.getSec_quest(), request.getResponse());
+        return ResponseEntity.ok(secQuestSaved);
     }
 }

@@ -1,13 +1,13 @@
 package com.example.testsapi.service;
 
-import com.example.testsapi.entity.Pair;
-import com.example.testsapi.entity.SecurityQuestion;
+import com.example.testsapi.entity.*;
 import com.example.testsapi.repository.SecurityQuestionRepository;
 import com.example.testsapi.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SecurityQuestionService {
@@ -33,5 +33,23 @@ public class SecurityQuestionService {
             }
         }
         return pairList;
+    }
+
+    public SecurityQuestion addSecurityQuestion(String userId, String sq, String resp) {
+        if (userId == null || userId.isEmpty()) {
+            throw new IllegalArgumentException("UserId must not be null or empty");
+        }
+
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (!userOpt.isPresent()) {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
+
+        SecurityQuestion sq1 = new SecurityQuestion();
+        sq1.setQuestion(sq);
+        sq1.setResponse(resp);
+        sq1.setStatus(Status.ACTIVE);
+        sq1.setUser(userOpt.get());
+        return securityQuestionRepository.save(sq1);
     }
 }
