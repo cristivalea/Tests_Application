@@ -1,5 +1,7 @@
 package com.example.testsapi.controller;
 
+import com.example.testsapi.entity.Role;
+import com.example.testsapi.entity.Status;
 import com.example.testsapi.entity.User;
 import com.example.testsapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,7 @@ public class SecurityTestController {
             String newId = String.format("U%05d", (maxId != null ? maxId + 1 : 1));
 
             User testUser = new User(newId, "Secure", "User", "secureuser",
-                    passwordEncoder.encode("password123"));
+                    passwordEncoder.encode("password123"), Status.ACTIVE,Role.USER);
             testUser.setDataBirth(LocalDate.of(1990, 1, 1));
             testUser.setPhoneNumber("+40123456789");
 

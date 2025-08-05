@@ -1,5 +1,7 @@
 package com.example.testsapi.controller;
 
+import com.example.testsapi.entity.Role;
+import com.example.testsapi.entity.Status;
 import com.example.testsapi.entity.User;
 import com.example.testsapi.entity.Email;
 import com.example.testsapi.repository.UserRepository;
@@ -50,7 +52,7 @@ public class DatabaseTestController {
             String newId = String.format("U%05d", (maxId != null ? maxId + 1 : 1));
 
             // Creăm utilizatorul de test
-            User testUser = new User(newId, "Test", "User", "testuser", "password123");
+            User testUser = new User(newId, "Test", "User", "testuser", "password123", Status.ACTIVE, Role.USER);
             testUser.setDataBirth(LocalDate.of(1990, 1, 1));
             testUser.setPhoneNumber("+40123456789");
 

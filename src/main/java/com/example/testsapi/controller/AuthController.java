@@ -4,6 +4,8 @@ import com.example.testsapi.dto.JwtResponse;
 import com.example.testsapi.dto.LoginRequest;
 import com.example.testsapi.dto.MessageResponse;
 import com.example.testsapi.dto.SignupRequest;
+import com.example.testsapi.entity.Role;
+import com.example.testsapi.entity.Status;
 import com.example.testsapi.entity.User;
 import com.example.testsapi.entity.Email;
 import com.example.testsapi.repository.UserRepository;
@@ -21,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,56 +32,53 @@ import java.util.stream.Collectors;
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
+
     AuthenticationManager authenticationManager;
-
-    @Autowired
     UserRepository userRepository;
-
-    @Autowired
     EmailRepository emailRepository;
 
-    @Autowired
     PasswordEncoder encoder;
 
-    @Autowired
     JwtUtils jwtUtils;
 
-    @Autowired
     UserIdGeneratorService userIdGeneratorService;
 
-    @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public AuthController(AuthenticationManager authManage, UserRepository userRepo,  EmailRepository emailRepo, PasswordEncoder encoder, JwtUtils jwtUtils, UserIdGeneratorService userIdGen){
+        this.authenticationManager = authManage;
+        this.userRepository = userRepo;
+        this.emailRepository = emailRepo;
+        this.encoder = encoder;
+        this.jwtUtils = jwtUtils;
+        this.userIdGeneratorService = userIdGen;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
-                            loginRequest.getPassword()));
+            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            String jwt = jwtUtils.generateJwtToken(authentication);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            String token = jwtUtils.generateJwtToken(auth);
 
-            User userDetails = (User) authentication.getPrincipal();
-            List<String> roles = userDetails.getAuthorities().stream()
-                    .map(item -> item.getAuthority())
-                    .collect(Collectors.toList());
+            User user = (User) auth.getPrincipal();
+            ArrayList<String> roles = new ArrayList<>();
+            for(var v : user.getAuthorities()){
+                roles.add(v.getAuthority());
+            }
 
-            return ResponseEntity.ok(new JwtResponse(jwt,
-                    userDetails.getIdUser(),
-                    userDetails.getUsername(),
-                    userDetails.getFirstName(),
-                    userDetails.getSecondName(),
-                    roles));
+            JwtResponse resp = new JwtResponse(token, user.getIdUser(), user.getUsername(), user.getFirstName(), user.getSecondName(), roles);
+
+            return ResponseEntity.ok(resp);
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("Error: Invalid username or password!"));
         }
     }
 
-    @PostMapping("/signup")
+    @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Error - username exist"));
         }
 
         try {
@@ -88,7 +88,10 @@ public class AuthController {
                     signUpRequest.getFirstName(),
                     signUpRequest.getSecondName(),
                     signUpRequest.getUsername(),
-                    encoder.encode(signUpRequest.getPassword()));
+                    encoder.encode(signUpRequest.getPassword()),
+                    Status.valueOf(signUpRequest.getStatus().toUpperCase()),
+                    Role.valueOf(signUpRequest.getRole().toUpperCase())
+            );
 
             user.setDataBirth(signUpRequest.getDataBirth());
             user.setPhoneNumber(signUpRequest.getPhoneNumber());
@@ -99,21 +102,20 @@ public class AuthController {
             Email email = new Email(user, signUpRequest.getEmail());
             emailRepository.save(email);
 
-            return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+            return ResponseEntity.ok(new MessageResponse("Registered successfully"));
 
         } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Error: Failed to register user - " + e.getMessage()));
+            return ResponseEntity.badRequest().body(new MessageResponse("Error register"+ e.getMessage()));
         }
     }
 
-    @PostMapping("/signout")
+    @PostMapping("/logout")
     public ResponseEntity<?> logoutUser() {
-        return ResponseEntity.ok(new MessageResponse("User logged out successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Logged Out"));
     }
 
-    @GetMapping("/test-jwt")
+    @GetMapping("/returnJWT")
     public ResponseEntity<?> testJwt() {
-        return ResponseEntity.ok(new MessageResponse("JWT endpoint is working!"));
+        return ResponseEntity.ok(new MessageResponse("JWT successfully"));
     }
 }

@@ -54,7 +54,14 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Email> emails;
 
-    // Câmpuri pentru Spring Security (nu sunt în baza de date)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private Status status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
+
     @Transient
     private boolean enabled = true;
 
@@ -67,16 +74,18 @@ public class User implements UserDetails {
     @Transient
     private boolean credentialsNonExpired = true;
 
-    // Constructori
+
     public User() {}
 
-    public User(String idUser, String firstName, String secondName, String username, String password) {
+    public User(String idUser, String firstName, String secondName, String username, String password, Status status, Role role) {
         this.idUser = idUser;
         this.firstName = firstName;
         this.secondName = secondName;
         this.username = username;
         this.password = password;
         this.registrationDate = LocalDate.now();
+        this.status = status;
+        this.role = role;
     }
 
     // Implementarea UserDetails
@@ -160,4 +169,19 @@ public class User implements UserDetails {
     public Set<SecurityQuestion> getSecurityQuestions() { return securityQuestions; }
     public void setSecurityQuestions(Set<SecurityQuestion> securityQuestions) { this.securityQuestions = securityQuestions; }
 
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }
