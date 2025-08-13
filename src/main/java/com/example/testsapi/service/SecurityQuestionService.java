@@ -74,4 +74,24 @@ public class SecurityQuestionService {
         }
     }
 
+    public void updateResponseSecurityQuestion(String userId, String question,  String newResponse){
+        if (userId == null || userId.isEmpty()) {
+            throw new IllegalArgumentException("UserId must not be null or empty");
+        }
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (!userOpt.isPresent()) {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
+        List<SecurityQuestion> questions = securityQuestionRepository.getAllByUserId(userId);
+        if (questions.isEmpty()) {
+            throw new RuntimeException("No security questions found for user " + userId);
+        }
+        for(SecurityQuestion sq : questions){
+            if(sq.getQuestion().equals(question)) {
+                sq.setResponse(newResponse);
+                securityQuestionRepository.save(sq);
+            }
+        }
+    }
+
 }

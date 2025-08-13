@@ -3,6 +3,7 @@ package com.example.testsapi.controller;
 import com.example.testsapi.dto.MessageResponse;
 import com.example.testsapi.entity.User;
 import com.example.testsapi.repository.UserRepository;
+import com.example.testsapi.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,11 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+    public UserDetailsServiceImpl userService;
+
+    public UserController(UserDetailsServiceImpl userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser() {
@@ -97,5 +103,37 @@ public class UserController {
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("Error: " + e.getMessage()));
         }
+    }
+
+    @PatchMapping("/{userId}/name")
+    public ResponseEntity<String> updateUserName(
+            @PathVariable String userId,
+            @RequestParam String newName) {
+        userService.updateUserFirstName(userId, newName);
+        return ResponseEntity.ok("User name updated successfully");
+    }
+
+    @PatchMapping("/{userId}/second_name")
+    public ResponseEntity<String> updateUserSecondName(@PathVariable String userId, @RequestParam String newName) {
+        userService.updateUserSecondName(userId, newName);
+        return ResponseEntity.ok("User second name updated successfully");
+    }
+
+    @PatchMapping("/{userId}/password")
+    public ResponseEntity<String> updateUserPassword(@PathVariable String userId, @RequestParam String newPassword) {
+        userService.updatePassword(userId, newPassword);
+        return ResponseEntity.ok("Password updated successfully");
+    }
+
+    @PatchMapping("/{userId}/status")
+    public ResponseEntity<String> updateStatus(@PathVariable String userId){
+        userService.updateStatus(userId);
+        return ResponseEntity.ok("Status update successfully");
+    }
+
+    @PatchMapping("/{userId}/role")
+    public ResponseEntity<String> updateRole(@PathVariable String userId){
+        userService.updateRole(userId);
+        return ResponseEntity.ok("Role update successfully");
     }
 }

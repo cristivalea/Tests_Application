@@ -8,6 +8,7 @@ import com.example.testsapi.entity.SecurityQuestion;
 import com.example.testsapi.service.SecurityQuestionService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,5 +38,10 @@ public class SecurityQuestionController {
     public ResponseEntity<String> deleteSequrityQuestion(@PathVariable String userId){
         securityQuestionService.deleteSequrityQuestion(userId);
         return ResponseEntity.ok("Sequrity question delete successfully!");
+    }
+
+    @PatchMapping("/{userId}")
+    public void updateSecurityQuestion(@PathVariable String userId, @RequestParam String question, @RequestParam String newResponse) {
+        securityQuestionService.updateResponseSecurityQuestion(userId, question, newResponse);
     }
 }
