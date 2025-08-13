@@ -32,4 +32,10 @@ public class SecurityQuestionController {
         SecurityQuestion secQuestSaved = securityQuestionService.addSecurityQuestion(request.getUserId(), request.getSec_quest(), request.getResponse());
         return ResponseEntity.ok(secQuestSaved);
     }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<String> deleteSequrityQuestion(@PathVariable String userId){
+        securityQuestionService.deleteSequrityQuestion(userId);
+        return ResponseEntity.ok("Sequrity question delete successfully!");
+    }
 }

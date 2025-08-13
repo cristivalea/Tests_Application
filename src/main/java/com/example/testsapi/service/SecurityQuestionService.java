@@ -52,4 +52,26 @@ public class SecurityQuestionService {
         sq1.setUser(userOpt.get());
         return securityQuestionRepository.save(sq1);
     }
+
+    public void deleteSequrityQuestion(String userId) {
+        if (userId == null || userId.isEmpty()) {
+            throw new IllegalArgumentException("UserId must not be null or empty");
+        }
+
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (!userOpt.isPresent()) {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
+
+        List<SecurityQuestion> questions = securityQuestionRepository.getAllByUserId(userId);
+        if (questions.isEmpty()) {
+            throw new RuntimeException("No security questions found for user " + userId);
+        }
+
+        for (SecurityQuestion sq : questions) {
+            sq.setStatus(Status.INACTIV);
+            securityQuestionRepository.save(sq);
+        }
+    }
+
 }
