@@ -49,6 +49,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/emails/**").permitAll()
                 .requestMatchers("/users/**").permitAll()
+                .requestMatchers("/api/users/**").permitAll()
                 .requestMatchers("/security-questions/**", "/security_questions/**").permitAll()
                 .anyRequest().authenticated();
 

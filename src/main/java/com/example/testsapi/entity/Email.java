@@ -1,5 +1,6 @@
 package com.example.testsapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 
@@ -13,6 +14,7 @@ public class Email {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idUser", referencedColumnName = "idUser")
+    @JsonManagedReference
     private User user;
 
     @Column(name = "email", nullable = false)
