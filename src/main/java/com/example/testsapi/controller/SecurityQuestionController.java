@@ -44,4 +44,16 @@ public class SecurityQuestionController {
     public void updateSecurityQuestion(@PathVariable String userId, @RequestParam String question, @RequestParam String newResponse) {
         securityQuestionService.updateResponseSecurityQuestion(userId, question, newResponse);
     }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteSpecificQuestion(
+            @RequestParam String userId,
+            @RequestParam String question) {
+        try {
+            securityQuestionService.deleteSpecificSecurityQuestion(userId, question);
+            return ResponseEntity.ok("Security question deleted successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
