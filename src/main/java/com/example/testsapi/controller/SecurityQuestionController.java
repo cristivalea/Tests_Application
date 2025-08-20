@@ -40,7 +40,7 @@ public class SecurityQuestionController {
         return ResponseEntity.ok("Sequrity question delete successfully!");
     }
 
-    @PatchMapping("/{userId}")
+    @PutMapping("/{userId}")
     public void updateSecurityQuestion(@PathVariable String userId, @RequestParam String question, @RequestParam String newResponse) {
         securityQuestionService.updateResponseSecurityQuestion(userId, question, newResponse);
     }
