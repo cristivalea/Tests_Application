@@ -102,7 +102,7 @@ public class AuthController {
             Email email = new Email(user, signUpRequest.getEmail());
             emailRepository.save(email);
 
-            return ResponseEntity.ok(new MessageResponse("Registered successfully"));
+            return ResponseEntity.ok(new MessageResponse(userId));
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error register"+ e.getMessage()));

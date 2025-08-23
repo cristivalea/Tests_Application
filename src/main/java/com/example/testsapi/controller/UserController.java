@@ -105,7 +105,7 @@ public class UserController {
         }
     }
 
-    @PatchMapping("/{userId}/name")
+    @PutMapping("/{userId}/name")
     public ResponseEntity<String> updateUserName(
             @PathVariable String userId,
             @RequestParam String newName) {
@@ -113,25 +113,25 @@ public class UserController {
         return ResponseEntity.ok("User name updated successfully");
     }
 
-    @PatchMapping("/{userId}/second_name")
+    @PutMapping("/{userId}/second_name")
     public ResponseEntity<String> updateUserSecondName(@PathVariable String userId, @RequestParam String newName) {
         userService.updateUserSecondName(userId, newName);
         return ResponseEntity.ok("User second name updated successfully");
     }
 
-    @PatchMapping("/{userId}/password")
+    @PutMapping("/{userId}/password")
     public ResponseEntity<String> updateUserPassword(@PathVariable String userId, @RequestParam String newPassword) {
         userService.updatePassword(userId, newPassword);
         return ResponseEntity.ok("Password updated successfully");
     }
 
-    @PatchMapping("/{userId}/status")
+    @PutMapping("/{userId}/status")
     public ResponseEntity<String> updateStatus(@PathVariable String userId){
         userService.updateStatus(userId);
         return ResponseEntity.ok("Status update successfully");
     }
 
-    @PatchMapping("/{userId}/role")
+    @PutMapping("/{userId}/role")
     public ResponseEntity<String> updateRole(@PathVariable String userId){
         userService.updateRole(userId);
         return ResponseEntity.ok("Role update successfully");
