@@ -1,25 +1,37 @@
 package com.example.testsapi.controller;
 
-import com.example.testsapi.dto.QuestionPayload;
 import com.example.testsapi.entity.Question;
 import com.example.testsapi.service.QuestionService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/questions")
 public class QuestionController {
 
-    private final QuestionService questionService;
-
-    public QuestionController(QuestionService questionService) {
-        this.questionService = questionService;
-    }
+    @Autowired
+    private QuestionService questionService;
 
     @PostMapping
-    public Question addQuestion(@RequestBody QuestionPayload payload) throws Exception {
-        return questionService.addQuestion(payload);
+    public ResponseEntity<?> addQuestion(@RequestBody String json) {
+        try {
+            Question saved = questionService.saveQuestion(json);
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Eroare: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/{idQuestion}")
+    public ResponseEntity<?> getFormattedQuestion(
+            @PathVariable Integer id,
+            @PathVariable String idQuestion) {
+        try {
+            String formattedJson = questionService.getFormattedQuestion(id, idQuestion);
+            return ResponseEntity.ok(formattedJson);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Eroare: " + e.getMessage());
+        }
     }
 }
