@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/questions")
 public class QuestionController {
@@ -34,4 +36,21 @@ public class QuestionController {
             return ResponseEntity.badRequest().body("Eroare: " + e.getMessage());
         }
     }
+
+    @GetMapping("/search")
+    public List<Question> searchByObjective(@RequestParam String objective) {
+        return questionService.getQuestionsByMainObjective(objective);
+    }
+
+    @GetMapping("/searchPrincipalObj")
+    public List<Question> searchQuestions(@RequestParam String mainObjective, @RequestParam String subObjective) {
+        return questionService.searchQuestions(mainObjective, subObjective);
+    }
+
+    @GetMapping("/searchByDifficulty")
+    public List<Question> searchByDifficultyAndObjectives(@RequestParam String difficulty, @RequestParam String mainObjective, @RequestParam(required = false) String subObjective) {
+        return questionService.searchByDifficultyAndObjectives(difficulty, mainObjective, subObjective);
+    }
+
+
 }

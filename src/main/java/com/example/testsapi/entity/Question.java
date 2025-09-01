@@ -16,5 +16,5 @@ public class Question {
 
     @Lob
     @Column(columnDefinition = "LONGTEXT", nullable = false)
-    private String question; // JSON-ul întrebării
+    private String question;
 }

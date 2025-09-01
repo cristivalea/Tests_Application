@@ -9,8 +9,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Hashtable;
-import java.util.Map;
+
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -45,30 +45,146 @@ public class QuestionService {
             throw new RuntimeException("Întrebarea nu a fost găsită!");
         }
 
-        // Luăm JSON-ul brut din DB
         String rawJson = optionalQuestion.get().getQuestion();
 
-        // Parsăm JSON-ul
         JsonNode root = objectMapper.readTree(rawJson);
 
-        // Accesăm primul element din Content (care este un array)
         JsonNode contentArray = root.path("Content");
         if (contentArray.isArray() && contentArray.size() > 0) {
             JsonNode firstContent = contentArray.get(0);
 
-            // Extragem codul original
             String originalCode = firstContent.path("cod").asText();
 
             String formattedCode = originalCode;
 
-            // Suprascrii valoarea codului în JSON
             if (firstContent.isObject()) {
                 ((ObjectNode) firstContent).put("cod", formattedCode);
             }
         }
 
-        // Returnezi JSON-ul frumos indentat
         return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
+    }
+
+    public List<Question> getQuestionsByMainObjective(String objective) {
+        return questionRepository.findAll().stream()
+                .filter(q -> {
+                    try {
+                        JsonNode root = objectMapper.readTree(q.getQuestion());
+                        JsonNode mainObjectives = root.path("mainObjectives");
+                        if (mainObjectives.isArray() && mainObjectives.size() > 0) {
+                            String name = mainObjectives.get(0).path("name").asText();
+                            return name.equalsIgnoreCase(objective);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return false;
+                })
+                .toList();
+    }
+
+
+    public List<Question> searchQuestions(String mainObjective, String subObjective) {
+        return questionRepository.findAll().stream()
+                .filter(q -> {
+                    try {
+                        JsonNode root = objectMapper.readTree(q.getQuestion());
+
+                        // verifică obiective principale
+                        JsonNode mainObjectives = root.path("mainObjectives");
+                        if (mainObjectives.isArray()) {
+                            for (JsonNode mo : mainObjectives) {
+                                String name = mo.path("name").asText();
+
+                                if (name.equalsIgnoreCase(mainObjective)) {
+                                    // dacă nu e dat subObjective, returnăm pe toate
+                                    if (subObjective == null || subObjective.isBlank()) {
+                                        return true;
+                                    }
+
+                                    // verifică subObjectives (dacă există în JSON)
+                                    JsonNode subObjectives = mo.path("subObjectives");
+                                    if (subObjectives.isArray()) {
+                                        for (JsonNode so : subObjectives) {
+                                            if (so.path("name").asText()
+                                                    .equalsIgnoreCase(subObjective)) {
+                                                return true;
+                                            }
+                                        }
+                                    }
+
+                                    // verifică secondaryObjectives (structura din JSON-ul tău)
+                                    JsonNode secondaryObjectives = root.path("secondaryObjectives");
+                                    if (secondaryObjectives.isArray()) {
+                                        for (JsonNode so : secondaryObjectives) {
+                                            if (so.path("name").asText()
+                                                    .equalsIgnoreCase(subObjective)) {
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return false;
+                })
+                .toList();
+    }
+
+    public List<Question> searchByDifficultyAndObjectives(String difficulty, String mainObjective, String subObjective) {
+        return questionRepository.findAll().stream()
+                .filter(q -> {
+                    try {
+                        JsonNode root = objectMapper.readTree(q.getQuestion());
+
+                        // verifică dificultatea (câmpul "type")
+                        String type = root.path("type").asText();
+                        if (!type.equalsIgnoreCase(difficulty)) {
+                            return false;
+                        }
+
+                        // verifică obiectivul principal
+                        JsonNode mainObjectives = root.path("mainObjectives");
+                        if (mainObjectives.isArray()) {
+                            for (JsonNode mo : mainObjectives) {
+                                String mainName = mo.path("name").asText();
+                                if (mainName.equalsIgnoreCase(mainObjective)) {
+                                    // dacă subObjective e gol -> îl ignorăm
+                                    if (subObjective == null || subObjective.isBlank()) {
+                                        return true;
+                                    }
+
+                                    // caută în subObjectives
+                                    JsonNode subObjectives = mo.path("subObjectives");
+                                    if (subObjectives.isArray()) {
+                                        for (JsonNode so : subObjectives) {
+                                            if (so.path("name").asText().equalsIgnoreCase(subObjective)) {
+                                                return true;
+                                            }
+                                        }
+                                    }
+
+                                    // caută și în secondaryObjectives (ca în JSON-ul tău)
+                                    JsonNode secondaryObjectives = root.path("secondaryObjectives");
+                                    if (secondaryObjectives.isArray()) {
+                                        for (JsonNode so : secondaryObjectives) {
+                                            if (so.path("name").asText().equalsIgnoreCase(subObjective)) {
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return false;
+                })
+                .toList();
     }
 
 }
