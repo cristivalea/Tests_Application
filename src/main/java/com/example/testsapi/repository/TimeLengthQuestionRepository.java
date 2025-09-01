@@ -15,4 +15,5 @@ public interface TimeLengthQuestionRepository extends JpaRepository<TimeLengthQu
 
     @Query(value = "SELECT IFNULL(MAX(m.id), 0) FROM time_length_question m", nativeQuery = true)
     Integer findMaxId();
+    List<TimeLengthQuestion> findByTimeLength(Integer timeLength);
 }

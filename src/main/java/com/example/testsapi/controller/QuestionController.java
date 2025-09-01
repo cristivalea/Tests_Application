@@ -43,15 +43,43 @@ public class QuestionController {
         return ResponseEntity.ok(questions);
     }
 
-//    @GetMapping("/searchPrincipalObj")
-//    public List<Question> searchQuestions(@RequestParam String mainObjective, @RequestParam String subObjective) {
-//        return questionService.searchQuestions(mainObjective, subObjective);
-//    }
-
-    @GetMapping("/searchByDifficulty")
-    public List<Question> searchByDifficultyAndObjectives(@RequestParam String difficulty, @RequestParam String mainObjective, @RequestParam(required = false) String subObjective) {
-        return questionService.searchByDifficultyAndObjectives(difficulty, mainObjective, subObjective);
+    @GetMapping("/searchPrincipalObj")
+    public List<Question> searchQuestions(@RequestParam Integer mainObjective, @RequestParam Integer subObjective) {
+        return questionService.searchByObjectives(mainObjective, subObjective);
     }
 
+    @GetMapping("/searchByPeriodAndObjectives")
+    public List<Question> searchByPeriodAndObjectives(@RequestParam Integer period, @RequestParam Integer idObjectiv, @RequestParam Integer idSubObjectiv) {
+        return questionService.searchByPeriodAndObjectives(period, idObjectiv, idSubObjectiv);
+    }
+
+    @DeleteMapping("/{idQuestion}")
+    public ResponseEntity<?> deleteQuestion(@PathVariable String idQuestion) {
+        try {
+            questionService.deleteByIdQuestion(idQuestion);
+            return ResponseEntity.ok("Question with id=" + idQuestion + " delete.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{idQuestion}/format")
+    public ResponseEntity<Question> updateFormat(@PathVariable String idQuestion, @RequestParam String newFormat) {
+        try {
+            Question updated = questionService.updateFormat(idQuestion, newFormat);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @PutMapping("/{idQuestion}/type")
+    public ResponseEntity<Question> updateType(@PathVariable String idQuestion, @RequestParam String newType) {
+        try {
+            Question updated = questionService.updateType(idQuestion, newType);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }
