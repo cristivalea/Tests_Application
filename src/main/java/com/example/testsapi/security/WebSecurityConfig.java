@@ -53,6 +53,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/security-questions/**", "/security_questions/**").permitAll()
                 .requestMatchers("/api/questions/**").permitAll()
                 .requestMatchers("/api/objectives/**").permitAll()
+                .requestMatchers("/api/secondary-objectives/**").permitAll()
                 .anyRequest().authenticated();
 
         http.authenticationProvider(authenticationProvider(null, null));
