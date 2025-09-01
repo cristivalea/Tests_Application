@@ -1,24 +1,33 @@
 package com.example.testsapi.service;
 
+import com.example.testsapi.entity.MainObjective;
 import com.example.testsapi.entity.Question;
 import com.example.testsapi.entity.QuestionId;
+import com.example.testsapi.repository.MainObjectiveRepository;
 import com.example.testsapi.repository.QuestionRepository;
+import com.example.testsapi.repository.SecondaryObjectiveRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.example.testsapi.entity.SecondaryObjective;
 
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
 
     @Autowired
     private QuestionRepository questionRepository;
-
+    @Autowired
+    private MainObjectiveRepository mainObjectiveRepository;
+    @Autowired
+    private SecondaryObjectiveRepository secondaryObjectiveRepository;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -42,7 +51,7 @@ public class QuestionService {
         Optional<Question> optionalQuestion = questionRepository.findById(new QuestionId(id, idQuestion));
 
         if (optionalQuestion.isEmpty()) {
-            throw new RuntimeException("Întrebarea nu a fost găsită!");
+            throw new RuntimeException("Error search question!");
         }
 
         String rawJson = optionalQuestion.get().getQuestion();
@@ -65,72 +74,37 @@ public class QuestionService {
         return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
     }
 
-    public List<Question> getQuestionsByMainObjective(String objective) {
-        return questionRepository.findAll().stream()
-                .filter(q -> {
-                    try {
-                        JsonNode root = objectMapper.readTree(q.getQuestion());
-                        JsonNode mainObjectives = root.path("mainObjectives");
-                        if (mainObjectives.isArray() && mainObjectives.size() > 0) {
-                            String name = mainObjectives.get(0).path("name").asText();
-                            return name.equalsIgnoreCase(objective);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return false;
-                })
+    public List<Question> getQuestionsByMainObjective(Integer idObjectiv) {
+
+        List<MainObjective> objectives = mainObjectiveRepository.findByIdObjectiv(idObjectiv);
+
+        List<String> idQuestions = objectives.stream()
+                .map(MainObjective::getIdQuestion)
+                .distinct()
                 .toList();
+
+        return questionRepository.findAll().stream()
+                .filter(q -> idQuestions.contains(q.getQuestionId().getIdQuestion()))
+                .collect(Collectors.toList());
     }
 
 
-    public List<Question> searchQuestions(String mainObjective, String subObjective) {
+    public List<Question> searchByObjectives(Integer idObjectiv, Integer idSubObjectiv) {
+
+        Set<String> mainQuestions = mainObjectiveRepository.findByIdObjectiv(idObjectiv)
+                .stream()
+                .map(MainObjective::getIdQuestion)
+                .collect(Collectors.toSet());
+        Set<String> secondaryQuestions = secondaryObjectiveRepository.findByIdObjectiv(idSubObjectiv)
+                .stream()
+                .map(SecondaryObjective::getIdQuestion)
+                .collect(Collectors.toSet());
+        Set<String> commonIds = mainQuestions.stream()
+                .filter(secondaryQuestions::contains)
+                .collect(Collectors.toSet());
+
         return questionRepository.findAll().stream()
-                .filter(q -> {
-                    try {
-                        JsonNode root = objectMapper.readTree(q.getQuestion());
-
-                        // verifică obiective principale
-                        JsonNode mainObjectives = root.path("mainObjectives");
-                        if (mainObjectives.isArray()) {
-                            for (JsonNode mo : mainObjectives) {
-                                String name = mo.path("name").asText();
-
-                                if (name.equalsIgnoreCase(mainObjective)) {
-                                    // dacă nu e dat subObjective, returnăm pe toate
-                                    if (subObjective == null || subObjective.isBlank()) {
-                                        return true;
-                                    }
-
-                                    // verifică subObjectives (dacă există în JSON)
-                                    JsonNode subObjectives = mo.path("subObjectives");
-                                    if (subObjectives.isArray()) {
-                                        for (JsonNode so : subObjectives) {
-                                            if (so.path("name").asText()
-                                                    .equalsIgnoreCase(subObjective)) {
-                                                return true;
-                                            }
-                                        }
-                                    }
-
-                                    // verifică secondaryObjectives (structura din JSON-ul tău)
-                                    JsonNode secondaryObjectives = root.path("secondaryObjectives");
-                                    if (secondaryObjectives.isArray()) {
-                                        for (JsonNode so : secondaryObjectives) {
-                                            if (so.path("name").asText()
-                                                    .equalsIgnoreCase(subObjective)) {
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return false;
-                })
+                .filter(q -> commonIds.contains(q.getQuestionId().getIdQuestion()))
                 .toList();
     }
 

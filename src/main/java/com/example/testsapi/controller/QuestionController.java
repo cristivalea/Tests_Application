@@ -37,15 +37,16 @@ public class QuestionController {
         }
     }
 
-    @GetMapping("/search")
-    public List<Question> searchByObjective(@RequestParam String objective) {
-        return questionService.getQuestionsByMainObjective(objective);
+    @GetMapping("/by-main-objective/{idObjectiv}")
+    public ResponseEntity<List<Question>> getQuestionsByObjective(@PathVariable Integer idObjectiv) {
+        List<Question> questions = questionService.getQuestionsByMainObjective(idObjectiv);
+        return ResponseEntity.ok(questions);
     }
 
-    @GetMapping("/searchPrincipalObj")
-    public List<Question> searchQuestions(@RequestParam String mainObjective, @RequestParam String subObjective) {
-        return questionService.searchQuestions(mainObjective, subObjective);
-    }
+//    @GetMapping("/searchPrincipalObj")
+//    public List<Question> searchQuestions(@RequestParam String mainObjective, @RequestParam String subObjective) {
+//        return questionService.searchQuestions(mainObjective, subObjective);
+//    }
 
     @GetMapping("/searchByDifficulty")
     public List<Question> searchByDifficultyAndObjectives(@RequestParam String difficulty, @RequestParam String mainObjective, @RequestParam(required = false) String subObjective) {
