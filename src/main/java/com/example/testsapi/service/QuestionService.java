@@ -182,14 +182,23 @@ public class QuestionService {
     public Question updateType(String idQuestion, String newType) throws Exception {
         Question q = questionRepository.findByQuestionId_IdQuestion(idQuestion)
                 .orElseThrow(() -> new RuntimeException("Question not found"));
-
-        // Parse JSON-ul ca Map
         Map<String, Object> map = objectMapper.readValue(q.getQuestion(), Map.class);
 
-        // Modificăm doar format
         map.put("type", newType);
 
-        // Rescriem JSON-ul
+        q.setQuestion(objectMapper.writeValueAsString(map));
+
+        return questionRepository.save(q);
+    }
+
+    public Question updateHint(String idQuestion, String newHint) throws Exception {
+        Question q = questionRepository.findByQuestionId_IdQuestion(idQuestion)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        Map<String, Object> map = objectMapper.readValue(q.getQuestion(), Map.class);
+
+        map.put("hint", newHint);
+
         q.setQuestion(objectMapper.writeValueAsString(map));
 
         return questionRepository.save(q);

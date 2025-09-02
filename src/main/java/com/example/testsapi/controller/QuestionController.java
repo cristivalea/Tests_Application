@@ -82,4 +82,14 @@ public class QuestionController {
         }
     }
 
+    @PutMapping("/{idQuestion}/hint")
+    public ResponseEntity<Question> updateHint(@PathVariable String idQuestion, @RequestParam String newHint) {
+        try {
+            Question updated = questionService.updateHint(idQuestion, newHint);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }
