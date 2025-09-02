@@ -55,6 +55,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/api/objectives/**").permitAll()
                 .requestMatchers("/api/secondary-objectives/**").permitAll()
                 .requestMatchers("/api/time-length/**").permitAll()
+                .requestMatchers("/api/response/**").permitAll()
                 .anyRequest().authenticated();
 
         http.authenticationProvider(authenticationProvider(null, null));
