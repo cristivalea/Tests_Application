@@ -20,8 +20,8 @@ public class EmailController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<String> getEmailByUserId(@PathVariable String userId) {
-        String email = emailService.getEmailByUserId(userId);
+    public ResponseEntity<List<String>> getEmailByUserId(@PathVariable String userId) {
+        List<String> email = emailService.getEmailsByUserId(userId);
         return ResponseEntity.ok(email);
     }
 
@@ -32,7 +32,7 @@ public class EmailController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<String> deleteEmail(@PathVariable String userId){
+    public ResponseEntity<String> deleteEmail(@PathVariable Long userId){
         emailService.deleteEmail(userId);
         return ResponseEntity.ok("Email delete successfully!");
     }

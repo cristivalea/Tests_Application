@@ -22,12 +22,14 @@ public class EmailService {
         this.userRepository = userRepository;
     }
 
-    public String getEmailByUserId(String userId) {
-        Email email = emailRepository.findByUserId(userId);
-        if (email == null) {
-            throw new RuntimeException("Email not found for userId: " + userId);
+    public List<String> getEmailsByUserId(String userId) {
+        List<Email> emails = emailRepository.findByUserId(userId);
+        if (emails.isEmpty()) {
+            throw new RuntimeException("No emails found for userId: " + userId);
         }
-        return email.getEmail();
+        return emails.stream()
+                .map(Email::getEmail)
+                .toList();
     }
 
     public Email addEmail(String userId, String email) {
@@ -46,20 +48,17 @@ public class EmailService {
         return emailRepository.save(email1);
     }
 
-    public void deleteEmail(String userId){
-        if (userId == null || userId.isEmpty()) {
-            throw new IllegalArgumentException("UserId must not be null or empty");
+    public void deleteEmail(Long emailId) {
+        if (emailId == null) {
+            throw new IllegalArgumentException("EmailId must not be null");
         }
 
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (!userOpt.isPresent()) {
-            throw new RuntimeException("User not found with id: " + userId);
+        Optional<Email> emailOpt = emailRepository.findById(emailId);
+        if (!emailOpt.isPresent()) {
+            throw new RuntimeException("Email not found with id: " + emailId);
         }
-        Email email = emailRepository.findByUserId(userId);
-        if(email == null){
-            System.err.println("Error search email - delete");
-        }
-        emailRepository.delete(email);
+
+        emailRepository.deleteById(emailId);
     }
 }
 

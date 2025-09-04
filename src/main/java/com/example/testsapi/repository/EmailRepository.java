@@ -13,6 +13,6 @@ import java.util.Optional;
 public interface EmailRepository extends JpaRepository<Email, Long> {
     @Query("SELECT e FROM Email e WHERE e.user.idUser = :userId")
 
-    Email findByUserId(@Param("userId") String userId);
+    List<Email> findByUserId(String userId);
 
 }
