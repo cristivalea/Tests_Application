@@ -9,16 +9,15 @@ import com.example.testsapi.repository.SecondaryObjectiveRepository;
 import com.example.testsapi.repository.TimeLengthQuestionRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.testsapi.entity.SecondaryObjective;
 
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 import com.example.testsapi.entity.TimeLengthQuestion;
 import com.example.testsapi.repository.QuestionRepository;
@@ -287,6 +286,156 @@ public class QuestionService {
                     }
                 }
                 ((ObjectNode) root).putArray("secondaryObjectives").addAll(filtered);
+                q.setQuestion(objectMapper.writeValueAsString(root));
+            }
+        }catch(Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
+        return questionRepository.save(q);
+    }
+
+
+    public Question addCode(String idQuestion, String newCode) throws IOException {
+        Question question = questionRepository.findByQuestionId_IdQuestion(idQuestion)
+                .orElseThrow(() -> new RuntimeException("Question not found with id: " + idQuestion));
+
+        JsonNode root = objectMapper.readTree(question.getQuestion());
+        ArrayNode contentArray;
+        if (root.has("Content") && root.get("Content").isArray()) {
+            contentArray = (ArrayNode) root.get("Content");
+        } else {
+            contentArray = objectMapper.createArrayNode();
+            ((ObjectNode) root).set("Content", contentArray);
+        }
+
+        if (contentArray.size() > 0) {
+            ObjectNode lastContent = (ObjectNode) contentArray.get(contentArray.size() - 1);
+            String existingCode = lastContent.has("cod") ? lastContent.get("cod").asText() : "";
+            lastContent.put("cod", existingCode.isEmpty() ? newCode : existingCode + "\n" + newCode);
+        } else {
+            ObjectNode newContent = objectMapper.createObjectNode();
+            newContent.put("textUP", (String) null);
+            newContent.put("cod", newCode);
+            contentArray.add(newContent);
+        }
+
+        String updatedJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
+        question.setQuestion(updatedJson);
+
+        return questionRepository.save(question);
+    }
+
+    public Question addTextToContent(String idQuestion, String newText) throws IOException {
+        Question question = questionRepository.findByQuestionId_IdQuestion(idQuestion)
+                .orElseThrow(() -> new RuntimeException("Question not found with id: " + idQuestion));
+
+        JsonNode root = objectMapper.readTree(question.getQuestion());
+        ArrayNode contentArray;
+        if (root.has("Content") && root.get("Content").isArray()) {
+            contentArray = (ArrayNode) root.get("Content");
+        } else {
+            contentArray = objectMapper.createArrayNode();
+            ((ObjectNode) root).set("Content", contentArray);
+        }
+
+        ObjectNode firstContent;
+        if (contentArray.size() > 0) {
+            firstContent = (ObjectNode) contentArray.get(0);
+        } else {
+            firstContent = objectMapper.createObjectNode();
+            contentArray.add(firstContent);
+        }
+        firstContent.put("textUP", newText);
+        String existingCode = firstContent.has("cod") ? firstContent.get("cod").asText() : "";
+        firstContent.put("cod", existingCode);
+        String updatedJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
+        question.setQuestion(updatedJson);
+
+        return questionRepository.save(question);
+    }
+
+    public Question addResponse(String idQuestion, String response){
+        Question q = questionRepository.findByQuestionId_IdQuestion(idQuestion)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        try {
+            JsonNode root = objectMapper.readTree(q.getQuestion());
+            JsonNode secondaryObjectiveNode = root.get("responses");
+            if (secondaryObjectiveNode == null || !secondaryObjectiveNode.isArray()) {
+                ((ObjectNode) root).putArray("responses");
+                secondaryObjectiveNode = root.get("responses");
+            }
+            ObjectNode newObjective = objectMapper.createObjectNode();
+            newObjective.put("response", response);
+            ((com.fasterxml.jackson.databind.node.ArrayNode) secondaryObjectiveNode).add(newObjective);
+            q.setQuestion(objectMapper.writeValueAsString(root));
+        }catch (Exception e){
+            new RuntimeException(e.getMessage());
+        }
+
+        return questionRepository.save(q);
+    }
+
+    public Question addAnswer(String idQuestion, String answer){
+        Question q = questionRepository.findByQuestionId_IdQuestion(idQuestion)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        try {
+            JsonNode root = objectMapper.readTree(q.getQuestion());
+            JsonNode answerNode = root.get("answers");
+            if (answerNode == null || !answerNode.isArray()) {
+                ((ObjectNode) root).putArray("answers");
+                answerNode= root.get("answers");
+            }
+            ObjectNode newObjective = objectMapper.createObjectNode();
+            newObjective.put("answer", answer);
+            ((com.fasterxml.jackson.databind.node.ArrayNode)answerNode).add(newObjective);
+            q.setQuestion(objectMapper.writeValueAsString(root));
+        }catch (Exception e){
+            new RuntimeException(e.getMessage());
+        }
+
+        return questionRepository.save(q);
+    }
+
+    public Question deleteResponse(String idQuestion, String response){
+        Question q = questionRepository.findByQuestionId_IdQuestion(idQuestion)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        try{
+            JsonNode root = objectMapper.readTree(q.getQuestion());
+            JsonNode reesponsesNode = root.get("responses");
+            if(reesponsesNode!= null && reesponsesNode.isArray()){
+                List<JsonNode> filtered = new java.util.ArrayList<>();
+                for (JsonNode obj : reesponsesNode) {
+                    if (!obj.path("respoonse").asText().trim().equals(response.trim())) {
+                        filtered.add(obj);
+                    }
+                }
+                ((ObjectNode) root).putArray("responses").addAll(filtered);
+                q.setQuestion(objectMapper.writeValueAsString(root));
+            }
+        }catch(Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
+        return questionRepository.save(q);
+    }
+
+    public Question deleteAnswer(String idQuestion, String answer){
+        Question q = questionRepository.findByQuestionId_IdQuestion(idQuestion)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        try{
+            JsonNode root = objectMapper.readTree(q.getQuestion());
+            JsonNode answerNode = root.get("answers");
+            if(answerNode != null && answerNode.isArray()){
+                List<JsonNode> filtered = new java.util.ArrayList<>();
+                for (JsonNode obj : answerNode) {
+                    if (!obj.path("answer").asText().trim().equals(answer.trim())) {
+                        filtered.add(obj);
+                    }
+                }
+                ((ObjectNode) root).putArray("answers").addAll(filtered);
                 q.setQuestion(objectMapper.writeValueAsString(root));
             }
         }catch(Exception e){

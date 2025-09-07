@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/questions")
@@ -72,6 +73,7 @@ public class QuestionController {
             return ResponseEntity.notFound().build();
         }
     }
+
     @PutMapping("/{idQuestion}/type")
     public ResponseEntity<Question> updateType(@PathVariable String idQuestion, @RequestParam String newType) {
         try {
@@ -105,7 +107,7 @@ public class QuestionController {
     }
 
     @PostMapping("/{idQuestion}/add-objective-secondary")
-    public ResponseEntity<Question> addSecondaryObjective(@PathVariable String idQuestion, @RequestParam Integer idObjective, @RequestParam String nameObjective) throws Exception{
+    public ResponseEntity<Question> addSecondaryObjective(@PathVariable String idQuestion, @RequestParam Integer idObjective, @RequestParam String nameObjective) throws Exception {
         Question updated = questionService.addSecondaryObjective(idQuestion, idObjective, nameObjective);
         return ResponseEntity.ok(updated);
     }
@@ -113,6 +115,54 @@ public class QuestionController {
     @DeleteMapping("delete-secondary/{idQuestion}/{idMainObj}")
     public ResponseEntity<Question> deleteSecondaryObjective(@PathVariable String idQuestion, @PathVariable Integer idMainObj) {
         Question updated = questionService.deleteSecondaryObjective(idQuestion, idMainObj);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PostMapping("/questions/{idQuestion}/code")
+    public ResponseEntity<Question> addCode(@PathVariable String idQuestion, @RequestBody Map<String, String> body) throws Exception {
+        return ResponseEntity.ok(questionService.addCode(idQuestion, body.get("code")));
+    }
+
+    @PostMapping("/questions/{idQuestion}/text")
+    public ResponseEntity<Question> addText(
+            @PathVariable String idQuestion,
+            @RequestBody Map<String, String> body) throws Exception {
+        return ResponseEntity.ok(questionService.addTextToContent(idQuestion, body.get("text")));
+    }
+
+    @PostMapping("/{idQuestion}/{}")
+    public ResponseEntity<Question> addresponse(@PathVariable String idQuestion, @RequestParam Integer idObjective, @RequestParam String nameObjective) throws Exception {
+        Question updated = questionService.addSecondaryObjective(idQuestion, idObjective, nameObjective);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PostMapping("/questions/{idQuestion}/responses")
+    public ResponseEntity<Question> addResponse(@PathVariable String idQuestion, @RequestParam String response) {
+        if (response == null || response.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Question updatedQuestion = questionService.addResponse(idQuestion, response);
+        return ResponseEntity.ok(updatedQuestion);
+    }
+
+    @PostMapping("/questions/{idQuestion}/answer")
+    public ResponseEntity<Question> addAnswer(@PathVariable String idQuestion, @RequestParam String answer) {
+        if (answer == null || answer.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Question updatedQuestion = questionService.addAnswer(idQuestion, answer);
+        return ResponseEntity.ok(updatedQuestion);
+    }
+
+    @DeleteMapping("/delete-response/{idQuestion}/{response}")
+    public ResponseEntity<Question> deleteResponse(@PathVariable String idQuestion, @PathVariable String response) {
+        Question updated = questionService.deleteResponse(idQuestion, response);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/delete-answer/{idQuestion}/{answer}")
+    public ResponseEntity<Question> deleteAnswer(@PathVariable String idQuestion, @PathVariable String answer) {
+        Question updated = questionService.deleteAnswer(idQuestion, answer);
         return ResponseEntity.ok(updated);
     }
 }
