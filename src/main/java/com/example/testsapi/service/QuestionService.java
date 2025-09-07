@@ -203,4 +203,95 @@ public class QuestionService {
 
         return questionRepository.save(q);
     }
+
+    public Question addMainObjective(String idQuestion, Integer idMainObj, String nameObjective){
+        Question q = questionRepository.findByQuestionId_IdQuestion(idQuestion).orElseThrow(() -> new RuntimeException("Question not found"));
+
+        try {
+            JsonNode root = objectMapper.readTree(q.getQuestion());
+            JsonNode mainObjectiveNode = root.get("mainObjectives");
+            if (mainObjectiveNode == null || !mainObjectiveNode.isArray()) {
+                ((ObjectNode) root).putArray("mainObjectives");
+                mainObjectiveNode = root.get("mainObjectives");
+            }
+            ObjectNode newObjective = objectMapper.createObjectNode();
+            newObjective.put("id", idMainObj);
+            newObjective.put("name", nameObjective);
+            ((com.fasterxml.jackson.databind.node.ArrayNode) mainObjectiveNode).add(newObjective);
+            q.setQuestion(objectMapper.writeValueAsString(root));
+        }catch (Exception e){
+            new RuntimeException(e.getMessage());
+        }
+
+        return questionRepository.save(q);
+    }
+
+    public Question deleteMainObjective(String idQuestion, Integer idMainObj){
+        Question q = questionRepository.findByQuestionId_IdQuestion(idQuestion)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        try{
+            JsonNode root = objectMapper.readTree(q.getQuestion());
+            JsonNode mainObjectiveNode = root.get("mainObjectives");
+            if(mainObjectiveNode != null && mainObjectiveNode.isArray()){
+                List<JsonNode> filtered = new java.util.ArrayList<>();
+                for (JsonNode obj : mainObjectiveNode) {
+                    if (obj.path("id").asInt() != idMainObj) {
+                        filtered.add(obj);
+                    }
+                }
+                ((ObjectNode) root).putArray("mainObjectives").addAll(filtered);
+                q.setQuestion(objectMapper.writeValueAsString(root));
+            }
+        }catch(Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
+        return questionRepository.save(q);
+    }
+
+    public Question addSecondaryObjective(String idQuestion, Integer idSecundaryObj, String nameObjective){
+        Question q = questionRepository.findByQuestionId_IdQuestion(idQuestion)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        try {
+            JsonNode root = objectMapper.readTree(q.getQuestion());
+            JsonNode secondaryObjectiveNode = root.get("secondaryObjectives");
+            if (secondaryObjectiveNode == null || !secondaryObjectiveNode.isArray()) {
+                ((ObjectNode) root).putArray("secondaryObjectives");
+                secondaryObjectiveNode = root.get("secondaryObjectives");
+            }
+            ObjectNode newObjective = objectMapper.createObjectNode();
+            newObjective.put("id", idSecundaryObj);
+            newObjective.put("name", nameObjective);
+            ((com.fasterxml.jackson.databind.node.ArrayNode) secondaryObjectiveNode).add(newObjective);
+            q.setQuestion(objectMapper.writeValueAsString(root));
+        }catch (Exception e){
+            new RuntimeException(e.getMessage());
+        }
+
+        return questionRepository.save(q);
+    }
+
+    public Question deleteSecondaryObjective(String idQuestion, Integer idSecondaryObj){
+        Question q = questionRepository.findByQuestionId_IdQuestion(idQuestion)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        try{
+            JsonNode root = objectMapper.readTree(q.getQuestion());
+            JsonNode secondaryObjectiveNode = root.get("secondaryObjectives");
+            if(secondaryObjectiveNode != null && secondaryObjectiveNode.isArray()){
+                List<JsonNode> filtered = new java.util.ArrayList<>();
+                for (JsonNode obj : secondaryObjectiveNode) {
+                    if (obj.path("id").asInt() != idSecondaryObj) {
+                        filtered.add(obj);
+                    }
+                }
+                ((ObjectNode) root).putArray("secondaryObjectives").addAll(filtered);
+                q.setQuestion(objectMapper.writeValueAsString(root));
+            }
+        }catch(Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
+        return questionRepository.save(q);
+    }
 }

@@ -92,4 +92,27 @@ public class QuestionController {
         }
     }
 
+    @PostMapping("/{idQuestion}/add-objective")
+    public ResponseEntity<Question> addObjective(@PathVariable String idQuestion, @RequestParam Integer idObjective, @RequestParam String nameObjective) throws Exception {
+        Question updated = questionService.addMainObjective(idQuestion, idObjective, nameObjective);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{idQuestion}/{idMainObj}")
+    public ResponseEntity<Question> deleteMainObjective(@PathVariable String idQuestion, @PathVariable Integer idMainObj) {
+        Question updated = questionService.deleteMainObjective(idQuestion, idMainObj);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PostMapping("/{idQuestion}/add-objective-secondary")
+    public ResponseEntity<Question> addSecondaryObjective(@PathVariable String idQuestion, @RequestParam Integer idObjective, @RequestParam String nameObjective) throws Exception{
+        Question updated = questionService.addSecondaryObjective(idQuestion, idObjective, nameObjective);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("delete-secondary/{idQuestion}/{idMainObj}")
+    public ResponseEntity<Question> deleteSecondaryObjective(@PathVariable String idQuestion, @PathVariable Integer idMainObj) {
+        Question updated = questionService.deleteSecondaryObjective(idQuestion, idMainObj);
+        return ResponseEntity.ok(updated);
+    }
 }
