@@ -9,12 +9,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -135,5 +137,28 @@ public class UserController {
     public ResponseEntity<String> updateRole(@PathVariable String userId){
         userService.updateRole(userId);
         return ResponseEntity.ok("Role update successfully");
+    }
+
+    @GetMapping("/search/phone")
+    public ResponseEntity<?> getUserByPhone(@RequestParam Map<String, String> payload) {
+        String phoneNumber = payload.get("phoneNumber");
+
+        if (phoneNumber == null || phoneNumber.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Numărul de telefon este obligatoriu!"));
+        }
+
+        // Normalizare: dacă începe cu 0, adaugă +40
+        if (phoneNumber.startsWith("0")) {
+            phoneNumber = "+40" + phoneNumber.substring(1);
+        }
+
+        Optional<User> userOpt = userService.getUserByPhoneNumber(phoneNumber);
+
+        if (userOpt.isPresent()) {
+            return ResponseEntity.ok(userOpt.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Utilizatorul cu numărul " + phoneNumber + " nu a fost găsit."));
+        }
     }
 }

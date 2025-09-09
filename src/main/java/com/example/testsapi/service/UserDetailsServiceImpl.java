@@ -103,4 +103,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         userRepository.save(user);
     }
+
+    public Optional<User> getUserByPhoneNumber(String phoneNumber) {
+        // eliminăm spațiile la început/sfârșit
+        phoneNumber = phoneNumber.trim();
+        return userRepository.findByPhoneNumber(phoneNumber);
+    }
 }
