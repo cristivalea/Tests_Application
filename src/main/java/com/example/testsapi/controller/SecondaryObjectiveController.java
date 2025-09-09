@@ -17,23 +17,20 @@ public class SecondaryObjectiveController {
         return ResponseEntity.ok(service.addObjective(objective));
     }
 
-    @PutMapping("/{id}/{idQuestion}")
-    public ResponseEntity<?> updateObjective(@PathVariable Integer id, @PathVariable String idQuestion, @RequestBody SecondaryObjective updatedObjective) {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateObjective(@PathVariable Integer id,  @RequestBody SecondaryObjective updatedObjective) {
         try {
-            SecondaryObjective updated = service.updateObjective(id, idQuestion, updatedObjective);
+            SecondaryObjective updated = service.updateObjective(id, updatedObjective);
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
 
-    @DeleteMapping("/{id}/{idQuestion}")
-    public ResponseEntity<?> deleteObjective(
-            @PathVariable Integer id,
-            @PathVariable String idQuestion) {
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteObjective(@PathVariable Integer id) {
         try {
-            service.deleteObjective(id, idQuestion);
+            service.deleteObjective(id);
             return ResponseEntity.ok("Secondary Objective delete successfully!");
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(e.getMessage());

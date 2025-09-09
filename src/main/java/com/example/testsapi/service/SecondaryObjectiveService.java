@@ -1,7 +1,6 @@
 package com.example.testsapi.service;
 
 import com.example.testsapi.entity.SecondaryObjective;
-import com.example.testsapi.entity.SecondaryObjectiveId;
 import com.example.testsapi.repository.SecondaryObjectiveRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,10 +16,9 @@ public class SecondaryObjectiveService {
         return secondaryObjectiveRepository.save(objective);
     }
 
-    public SecondaryObjective updateObjective(Integer id, String idQuestion, SecondaryObjective newData) {
-        SecondaryObjectiveId key = new SecondaryObjectiveId(id, idQuestion);
-
-        SecondaryObjective existing = secondaryObjectiveRepository.findById(key).orElseThrow(() -> new RuntimeException("Error search secondary objective"));
+    public SecondaryObjective updateObjective(Integer id, SecondaryObjective newData) {
+        SecondaryObjective existing = secondaryObjectiveRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Obiectivul nu a fost găsit!"));
 
         existing.setIdObjectiv(newData.getIdObjectiv());
         existing.setNameObjectiv(newData.getNameObjectiv());
@@ -28,11 +26,10 @@ public class SecondaryObjectiveService {
         return secondaryObjectiveRepository.save(existing);
     }
 
-    public void deleteObjective(Integer id, String idQuestion) {
-        SecondaryObjectiveId key = new SecondaryObjectiveId(id, idQuestion);
-        if (!secondaryObjectiveRepository.existsById(key)) {
-            throw new RuntimeException("Obiectivul secundar nu există!");
+    public void deleteObjective(Integer id) {
+        if (!secondaryObjectiveRepository.existsById(id)) {
+            throw new RuntimeException("Obiectivul nu a fost găsit!");
         }
-        secondaryObjectiveRepository.deleteById(key);
+        secondaryObjectiveRepository.deleteById(id);
     }
 }

@@ -10,13 +10,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "secondary_objectives")
-@IdClass(SecondaryObjectiveId.class)
 public class SecondaryObjective {
     @Id
     @Column(name = "id")
     private Integer id;
 
-    @Id
     @Column(name = "idQuestion", nullable = false, length = 100)
     private String idQuestion;
 
