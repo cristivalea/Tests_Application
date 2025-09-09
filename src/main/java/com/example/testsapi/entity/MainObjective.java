@@ -8,14 +8,13 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "main_objectives")
-@IdClass(MainObjectiveId.class)
 public class MainObjective {
 
     @Id
     @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Id
     @Column(name = "idQuestion", nullable = false, length = 100)
     private String idQuestion;
 

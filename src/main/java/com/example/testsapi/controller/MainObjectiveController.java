@@ -19,23 +19,20 @@ public class MainObjectiveController {
         return ResponseEntity.ok(saved);
     }
 
-    @DeleteMapping("/{id}/{idQuestion}")
-    public ResponseEntity<String> deleteObjective(
-            @PathVariable Integer id,
-            @PathVariable String idQuestion) {
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteObjective(@PathVariable Integer id){
         try {
-            service.deleteObjective(id, idQuestion);
+            service.deleteObjective(id);
             return ResponseEntity.ok("Objective delete successfully!");
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
 
-    @PutMapping("/{id}/{idQuestion}")
-    public ResponseEntity<?> updateObjective(@PathVariable Integer id, @PathVariable String idQuestion, @RequestBody MainObjective updatedObjective) {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateObjective(@PathVariable Integer id, @RequestBody MainObjective updatedObjective) {
         try {
-            MainObjective updated = service.updateObjective(id, idQuestion, updatedObjective);
+            MainObjective updated = service.updateObjective(id, updatedObjective);
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(e.getMessage());

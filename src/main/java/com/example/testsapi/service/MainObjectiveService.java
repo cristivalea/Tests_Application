@@ -1,7 +1,6 @@
 package com.example.testsapi.service;
 
 import com.example.testsapi.entity.MainObjective;
-import com.example.testsapi.entity.MainObjectiveId;
 import com.example.testsapi.repository.MainObjectiveRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,21 +18,20 @@ public class MainObjectiveService {
         return repository.save(objective);
     }
 
-    public void deleteObjective(Integer id, String idQuestion) {
-        MainObjectiveId key = new MainObjectiveId(id, idQuestion);
-
-        if (!repository.existsById(key)) {
-            throw new RuntimeException("Error search objective");
+    public void deleteObjective(Integer id) {
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Obiectivul nu a fost găsit!");
         }
-
-        repository.deleteById(key);
+        repository.deleteById(id);
     }
 
-    public MainObjective updateObjective(Integer id, String idQuestion, MainObjective newData) {
-        MainObjectiveId obj = new MainObjectiveId(id, idQuestion);
-        MainObjective existingObjective = repository.findById(obj).orElseThrow(() -> new RuntimeException("Obiectivul nu a fost găsit!"));
+    public MainObjective updateObjective(Integer id, MainObjective newData) {
+        MainObjective existingObjective = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Obiectivul nu a fost găsit!"));
+
         existingObjective.setIdObjectiv(newData.getIdObjectiv());
         existingObjective.setNameObjectiv(newData.getNameObjectiv());
         return repository.save(existingObjective);
     }
+
 }
