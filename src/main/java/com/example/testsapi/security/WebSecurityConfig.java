@@ -60,6 +60,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/api/source_code/**").permitAll()
                 .requestMatchers("/session/validate/**").permitAll()
                 .requestMatchers("/question_code_link/**").permitAll()
+                .requestMatchers("/feedback/**").permitAll()
                 .anyRequest().authenticated();
 
         http.authenticationProvider(authenticationProvider(null, null));
