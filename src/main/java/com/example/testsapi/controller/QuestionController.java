@@ -49,9 +49,9 @@ public class QuestionController {
         return questionService.searchByObjectives(mainObjective, subObjective);
     }
 
-    @GetMapping("/searchByPeriodAndObjectives")
-    public List<Question> searchByPeriodAndObjectives(@RequestParam Integer period, @RequestParam Integer idObjectiv, @RequestParam Integer idSubObjectiv) {
-        return questionService.searchByPeriodAndObjectives(period, idObjectiv, idSubObjectiv);
+    @GetMapping("/searchByPeriodAndObjectives/{period}/{idObjectiv}/{idSubObjectiv}")
+    public List<Question> searchByPeriodAndObjectives(@PathVariable String period, @PathVariable Integer idObjectiv, @PathVariable Integer idSubObjectiv) {
+        return questionService.searchByObjectivesAndLevel(idObjectiv, idSubObjectiv, period);
     }
 
     @DeleteMapping("/{idQuestion}")

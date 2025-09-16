@@ -17,4 +17,7 @@ public class Question {
     @Lob
     @Column(columnDefinition = "LONGTEXT", nullable = false)
     private String question;
+
+    @Column(name = "level", nullable = false, length = 100)
+    private String level;
 }

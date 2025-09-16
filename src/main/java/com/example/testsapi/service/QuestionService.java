@@ -40,6 +40,7 @@ public class QuestionService {
 
         JsonNode root = objectMapper.readTree(json);
         String idQuestion = root.get("id").asText();
+        String level = root.get("type").asText();
 
 
         Integer nextId = (int) (questionRepository.count() + 1);
@@ -47,6 +48,7 @@ public class QuestionService {
         Question question = new Question();
         question.setQuestionId(new QuestionId(nextId, idQuestion));
         question.setQuestion(json);
+        question.setLevel(level);
 
         return questionRepository.save(question);
     }
@@ -113,41 +115,97 @@ public class QuestionService {
                 .toList();
     }
 
-    public List<Question> searchByPeriodAndObjectives(Integer period, Integer idObjectiv, Integer idSubObjectiv) {
+//    public List<Question> searchByPeriodAndObjectives(Integer period, Integer idObjectiv, Integer idSubObjectiv) {
+//
+//        // întrebările legate de obiectiv principal
+//        Set<String> mainQuestions = mainObjectiveRepository.findByIdObjectiv(idObjectiv)
+//                .stream()
+//                .map(MainObjective::getIdQuestion)
+//                .collect(Collectors.toSet());
+//
+//        // întrebările legate de obiectiv secundar
+//        Set<String> secondaryQuestions = secondaryObjectiveRepository.findByIdObjectiv(idSubObjectiv)
+//                .stream()
+//                .map(SecondaryObjective::getIdQuestion)
+//                .collect(Collectors.toSet());
+//
+//        // intersecția între principal și secundar
+//        Set<String> commonIds = mainQuestions.stream()
+//                .filter(secondaryQuestions::contains)
+//                .collect(Collectors.toSet());
+//
+//        // întrebările legate de perioada (timeLength)
+//        Set<String> periodQuestions = timeLengthQuestionRepository.findByTimeLength(period)
+//                .stream()
+//                .map(TimeLengthQuestion::getIdQuestion)
+//                .collect(Collectors.toSet());
+//
+//        // intersecția finală
+//        Set<String> finalIds = commonIds.stream()
+//                .filter(periodQuestions::contains)
+//                .collect(Collectors.toSet());
+//
+//        // întoarcem întrebările
+//        return questionRepository.findAll().stream()
+//                .filter(q -> finalIds.contains(q.getQuestionId().getIdQuestion()))
+//                .toList();
+//    }
 
-        // întrebările legate de obiectiv principal
-        Set<String> mainQuestions = mainObjectiveRepository.findByIdObjectiv(idObjectiv)
-                .stream()
-                .map(MainObjective::getIdQuestion)
-                .collect(Collectors.toSet());
+    public List<Question> searchByObjectivesAndLevel(
+            Integer idObjectiv, Integer idSubObjectiv, String level) {
 
-        // întrebările legate de obiectiv secundar
-        Set<String> secondaryQuestions = secondaryObjectiveRepository.findByIdObjectiv(idSubObjectiv)
-                .stream()
-                .map(SecondaryObjective::getIdQuestion)
-                .collect(Collectors.toSet());
+        ObjectMapper mapper = new ObjectMapper();
 
-        // intersecția între principal și secundar
-        Set<String> commonIds = mainQuestions.stream()
-                .filter(secondaryQuestions::contains)
-                .collect(Collectors.toSet());
-
-        // întrebările legate de perioada (timeLength)
-        Set<String> periodQuestions = timeLengthQuestionRepository.findByTimeLength(period)
-                .stream()
-                .map(TimeLengthQuestion::getIdQuestion)
-                .collect(Collectors.toSet());
-
-        // intersecția finală
-        Set<String> finalIds = commonIds.stream()
-                .filter(periodQuestions::contains)
-                .collect(Collectors.toSet());
-
-        // întoarcem întrebările
         return questionRepository.findAll().stream()
-                .filter(q -> finalIds.contains(q.getQuestionId().getIdQuestion()))
+                // filtrăm după level (coloană simplă în DB)
+                .filter(q -> q.getLevel() != null && q.getLevel().equalsIgnoreCase(level))
+                // filtrăm după JSON (mainObjectives + secondaryObjectives)
+                .filter(q -> {
+                    String questionJson = q.getQuestion();
+                    if (questionJson == null || questionJson.isEmpty()) {
+                        // dacă content-ul este null sau gol, sărim peste
+                        return false;
+                    }
+
+                    try {
+                        JsonNode root = mapper.readTree(questionJson);
+
+                        // verificăm mainObjectives
+                        boolean matchesMain = false;
+                        JsonNode mainObjectives = root.path("mainObjectives");
+                        if (mainObjectives.isArray()) {
+                            for (JsonNode obj : mainObjectives) {
+                                if (obj.path("id").asText().equals(String.valueOf(idObjectiv))) {
+                                    matchesMain = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // verificăm secondaryObjectives
+                        boolean matchesSecondary = false;
+                        JsonNode secondaryObjectives = root.path("secondaryObjectives");
+                        if (secondaryObjectives.isArray()) {
+                            for (JsonNode obj : secondaryObjectives) {
+                                if (obj.path("id").asText().equals(String.valueOf(idSubObjectiv))) {
+                                    matchesSecondary = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        return matchesMain && matchesSecondary;
+
+                    } catch (Exception e) {
+                        // logăm eroarea și sărim peste această întrebare
+                        System.err.println("Error parsing question JSON for id=" + q.getQuestionId() + ": " + e.getMessage());
+                        return false;
+                    }
+                })
                 .toList();
     }
+
+
 
     public void deleteByIdQuestion(String idQuestion) {
         List<Question> questions = questionRepository.findAll()
