@@ -20,4 +20,10 @@ public class Question {
 
     @Column(name = "level", nullable = false, length = 100)
     private String level;
+
+    @Column(name = "score", nullable = false)
+    private int score;
+
+    @Column(name = "domain", nullable = false, length = 100)
+    private String domain;
 }

@@ -1,25 +1,19 @@
 package com.example.testsapi.service;
 
-import com.example.testsapi.entity.MainObjective;
-import com.example.testsapi.entity.Question;
-import com.example.testsapi.entity.QuestionId;
-import com.example.testsapi.repository.MainObjectiveRepository;
-import com.example.testsapi.repository.QuestionRepository;
-import com.example.testsapi.repository.SecondaryObjectiveRepository;
-import com.example.testsapi.repository.TimeLengthQuestionRepository;
+import com.example.testsapi.entity.*;
+import com.example.testsapi.repository.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.testsapi.entity.SecondaryObjective;
 
 
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import com.example.testsapi.entity.TimeLengthQuestion;
+
 import com.example.testsapi.repository.QuestionRepository;
 
 @Service
@@ -31,6 +25,8 @@ public class QuestionService {
     private MainObjectiveRepository mainObjectiveRepository;
     @Autowired
     private SecondaryObjectiveRepository secondaryObjectiveRepository;
+    @Autowired
+    private QuestionLabelsRepository questionLabelsRepository;
     @Autowired
     private TimeLengthQuestionRepository timeLengthQuestionRepository;
     @Autowired
@@ -501,4 +497,104 @@ public class QuestionService {
         }
         return questionRepository.save(q);
     }
+
+    private Set<Integer> getMainObjectivesForQuestion(String idQuestion) {
+        return mainObjectiveRepository.findByIdQuestion(idQuestion)
+                .stream()
+                .map(MainObjective::getIdObjectiv)
+                .collect(Collectors.toSet());
+    }
+
+    private Set<Integer> getSubObjectivesForQuestion(String idQuestion) {
+        return secondaryObjectiveRepository.findByIdQuestion(idQuestion)
+                .stream()
+                .map(SecondaryObjective::getIdObjectiv)
+                .collect(Collectors.toSet());
+    }
+
+    private Set<String> getLabels(String idQuestion){
+        return questionLabelsRepository.findByIdQuestion(idQuestion)
+                .stream()
+                .map(QuestionLabels::getLabel)
+                .collect(Collectors.toSet());
+    }
+
+    private Set<Integer> getDifficulty(String idQuestion){
+        return timeLengthQuestionRepository.findByIdQuestion(idQuestion)
+                .stream()
+                .map(TimeLengthQuestion::getTimeLength)
+                .collect(Collectors.toSet());
+    }
+
+    public Metric distance(Question q1, Question q2) {
+        if (q1 == null || q2 == null) {
+            System.err.println("One of the questions is null!");
+            return null;
+        }
+
+        Metric metric = new Metric();
+
+        if (!q1.getDomain().equals(q2.getDomain())) {
+           metric.setScoreDifficulty(0.0);
+           metric.setScoreObjectives(0.0);
+           metric.setScoreGuiType(0.0);
+           metric.setScoreLabel(0.0);
+           metric.setScoreSubObjectives(0.0);
+        }
+
+        if(q1.getQuestionId().getId() == q2.getQuestionId().getId() && q1.getQuestionId().getIdQuestion().equals(q2.getQuestionId().getIdQuestion())){
+            metric.setScoreDifficulty(1.0);
+            metric.setScoreObjectives(1.0);
+            metric.setScoreGuiType(1.0);
+            metric.setScoreLabel(1.0);
+            metric.setScoreSubObjectives(1.0);
+        }
+
+
+        Set<Integer> idQuest1 = getMainObjectivesForQuestion(q1.getQuestionId().getIdQuestion());
+        Set<Integer> idQuest2 = getMainObjectivesForQuestion(q2.getQuestionId().getIdQuestion());
+
+        Set<Integer> idSubQuest1 = getSubObjectivesForQuestion(q1.getQuestionId().getIdQuestion());
+        Set<Integer> idSubQuest2 = getSubObjectivesForQuestion(q2.getQuestionId().getIdQuestion());
+
+        Set<String> labelQuest1 = getLabels(q1.getQuestionId().getIdQuestion());
+        Set<String> labelQuest2 = getLabels(q2.getQuestionId().getIdQuestion());
+
+        if (idQuest1.equals(idQuest2)) {
+            if (!labelQuest1.equals(labelQuest2)) {
+                double sum = 0;
+                for (Integer i : idSubQuest1) {
+                    for (Integer j : idSubQuest2) {
+                        sum += 0.1;
+                    }
+                }
+                if (sum != 0) {
+                    metric.setScoreObjectives(sum);
+                }
+            }
+        }
+
+
+        if (idQuest1.equals(idQuest2) && idSubQuest1.equals(idSubQuest2)) {
+            double sum = labelQuest1.stream()
+                    .filter(labelQuest2::contains)
+                    .count() * 0.1;
+            metric.setScoreLabel(sum);
+        }
+
+        Set<Integer> difficultyQuest1 = getDifficulty(q1.getQuestionId().getIdQuestion());
+        Set<Integer> difficultyQuest2 = getDifficulty(q2.getQuestionId().getIdQuestion());
+
+        if (difficultyQuest1.equals(difficultyQuest2)) {
+            metric.setScoreDifficulty(0.2);
+        }
+
+        return metric;
+    }
+
+
+    public Optional<Question> findById(QuestionId id) {
+        return questionRepository.findById(id);
+    }
+
 }

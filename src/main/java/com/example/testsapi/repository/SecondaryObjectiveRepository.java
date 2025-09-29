@@ -1,6 +1,7 @@
 package com.example.testsapi.repository;
 
 
+import com.example.testsapi.entity.MainObjective;
 import com.example.testsapi.entity.SecondaryObjective;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,4 +15,5 @@ public interface SecondaryObjectiveRepository extends JpaRepository<SecondaryObj
     @Query(value = "SELECT IFNULL(MAX(s.id), 0) FROM secondary_objectives s", nativeQuery = true)
     Integer findMaxId();
     List<SecondaryObjective> findByIdObjectiv(Integer idObjectiv);
+    List<SecondaryObjective> findByIdQuestion(String idQuestion);
 }

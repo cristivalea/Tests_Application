@@ -1,6 +1,8 @@
 package com.example.testsapi.controller;
 
+import com.example.testsapi.entity.Metric;
 import com.example.testsapi.entity.Question;
+import com.example.testsapi.entity.QuestionId;
 import com.example.testsapi.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -164,5 +166,17 @@ public class QuestionController {
     public ResponseEntity<Question> deleteAnswer(@PathVariable String idQuestion, @PathVariable String answer) {
         Question updated = questionService.deleteAnswer(idQuestion, answer);
         return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/distance")
+    public Metric getDistance(@RequestParam Integer id1, @RequestParam String idQuestion1,
+                              @RequestParam Integer id2, @RequestParam String idQuestion2) {
+
+        Question q1 = questionService.findById(new QuestionId(id1, idQuestion1))
+                .orElseThrow(() -> new RuntimeException("Question 1 not found"));
+        Question q2 = questionService.findById(new QuestionId(id2, idQuestion2))
+                .orElseThrow(() -> new RuntimeException("Question 2 not found"));
+
+        return questionService.distance(q1, q2);
     }
 }

@@ -14,5 +14,5 @@ public interface MainObjectiveRepository extends JpaRepository<MainObjective, In
     Integer findMaxId();
     List<MainObjective> findByIdObjectiv(Integer idObjectiv);
 
-
+    List<MainObjective> findByIdQuestion(String idQuestion);
 }
