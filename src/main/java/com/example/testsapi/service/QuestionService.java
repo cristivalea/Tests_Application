@@ -565,7 +565,9 @@ public class QuestionService {
                 double sum = 0;
                 for (Integer i : idSubQuest1) {
                     for (Integer j : idSubQuest2) {
-                        sum += 0.1;
+                        if(i == j) {
+                            sum += 0.1;
+                        }
                     }
                 }
                 if (sum != 0) {
