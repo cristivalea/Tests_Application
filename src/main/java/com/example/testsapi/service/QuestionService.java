@@ -534,22 +534,26 @@ public class QuestionService {
 
         Metric metric = new Metric();
 
+        // domeniul diferit
         if (!q1.getDomain().equals(q2.getDomain())) {
-           metric.setScoreDifficulty(0.0);
-           metric.setScoreObjectives(0.0);
-           metric.setScoreGuiType(0.0);
-           metric.setScoreLabel(0.0);
-           metric.setScoreSubObjectives(0.0);
+            metric.setScoreDifficulty(0.0);
+            metric.setScoreObjectives(0.0);
+            metric.setScoreGuiType(0.0);
+            metric.setScoreLabel(0.0);
+            metric.setScoreSubObjectives(0.0);
+            return metric;
         }
 
-        if(q1.getQuestionId().getId() == q2.getQuestionId().getId() && q1.getQuestionId().getIdQuestion().equals(q2.getQuestionId().getIdQuestion())){
+        // id și idQuestion
+        if (q1.getQuestionId().getId().equals(q2.getQuestionId().getId()) &&
+                q1.getQuestionId().getIdQuestion().equals(q2.getQuestionId().getIdQuestion())) {
             metric.setScoreDifficulty(1.0);
             metric.setScoreObjectives(1.0);
             metric.setScoreGuiType(1.0);
             metric.setScoreLabel(1.0);
             metric.setScoreSubObjectives(1.0);
+            return metric;
         }
-
 
         Set<Integer> idQuest1 = getMainObjectivesForQuestion(q1.getQuestionId().getIdQuestion());
         Set<Integer> idQuest2 = getMainObjectivesForQuestion(q2.getQuestionId().getIdQuestion());
@@ -560,30 +564,42 @@ public class QuestionService {
         Set<String> labelQuest1 = getLabels(q1.getQuestionId().getIdQuestion());
         Set<String> labelQuest2 = getLabels(q2.getQuestionId().getIdQuestion());
 
+        // scor pentru obiective principale
         if (idQuest1.equals(idQuest2)) {
-            if (!labelQuest1.equals(labelQuest2)) {
-                double sum = 0;
-                for (Integer i : idSubQuest1) {
-                    for (Integer j : idSubQuest2) {
-                        if(i == j) {
-                            sum += 0.1;
-                        }
-                    }
+            metric.setScoreObjectives(1.0);
+        }
+
+        // scor pentru sub-obiective
+        if (idSubQuest1.equals(idSubQuest2)) {
+            metric.setScoreSubObjectives(1.0);
+        } else {
+            double sum = 0.0;
+            for (Integer i : idSubQuest1) {
+                if (idSubQuest2.contains(i)) {
+                    sum += 0.1;
                 }
-                if (sum != 0) {
-                    metric.setScoreObjectives(sum);
-                }
+            }
+            if (sum > 0) {
+                metric.setScoreSubObjectives(sum);
             }
         }
 
-
-        if (idQuest1.equals(idQuest2) && idSubQuest1.equals(idSubQuest2)) {
-            double sum = labelQuest1.stream()
-                    .filter(labelQuest2::contains)
-                    .count() * 0.1;
-            metric.setScoreLabel(sum);
+        // scor pentru etichete
+        if (labelQuest1.equals(labelQuest2)) {
+            metric.setScoreLabel(1.0);
+        } else {
+            double sum = 0.0;
+            for (String l1 : labelQuest1) {
+                if (labelQuest2.contains(l1)) {
+                    sum += 0.1;
+                }
+            }
+            if (sum > 0) {
+                metric.setScoreLabel(sum);
+            }
         }
 
+        // scor pentru dificultate
         Set<Integer> difficultyQuest1 = getDifficulty(q1.getQuestionId().getIdQuestion());
         Set<Integer> difficultyQuest2 = getDifficulty(q2.getQuestionId().getIdQuestion());
 
@@ -593,7 +609,6 @@ public class QuestionService {
 
         return metric;
     }
-
 
     public Optional<Question> findById(QuestionId id) {
         return questionRepository.findById(id);
