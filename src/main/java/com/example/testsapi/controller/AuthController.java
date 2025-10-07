@@ -58,31 +58,31 @@ public class AuthController {
         this.emailService = emailService;
     }
 
-//    @PostMapping("/login")
-//    public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
-//        try {
-//            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-//
-//            SecurityContextHolder.getContext().setAuthentication(auth);
-//            String token = jwtUtils.generateJwtToken(auth);
-//
-//            User user = (User) auth.getPrincipal();
-//            ArrayList<String> roles = new ArrayList<>();
-//            for(var v : user.getAuthorities()){
-//                roles.add(v.getAuthority());
-//            }
-//
-//            JwtResponse resp = new JwtResponse(token, user.getIdUser(), user.getUsername(), user.getFirstName(), user.getSecondName(), roles);
-//
-//            return ResponseEntity.ok(resp);
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest()
-//                    .body(new MessageResponse("Error: Invalid username or password!"));
-//        }
-//    }
-
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
+        try {
+            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            String token = jwtUtils.generateJwtToken(auth);
+
+            User user = (User) auth.getPrincipal();
+            ArrayList<String> roles = new ArrayList<>();
+            for(var v : user.getAuthorities()){
+                roles.add(v.getAuthority());
+            }
+
+            JwtResponse resp = new JwtResponse(token, user.getIdUser(), user.getUsername(), user.getFirstName(), user.getSecondName(), roles);
+
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error: Invalid username or password!"));
+        }
+    }
+
+    @PostMapping("/login1")
+    public ResponseEntity<?> loginUser1(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication auth;
         try {
