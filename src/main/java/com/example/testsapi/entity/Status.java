@@ -3,7 +3,7 @@ package com.example.testsapi.entity;
 public enum Status {
 
     INACTIV("INACTIV"),
-    ACTIVE("ACTIV");
+    ACTIVE("ACTIVE");
 
     private String name;
 

@@ -26,10 +26,12 @@ public class SecurityQuestionService {
             System.err.println("Sequrity question - not exist");
         }
         for(SecurityQuestion s : sq) {
-            Pair<String, String> pair = new Pair<>(s.getQuestion(), s.getResponse());
-            pairList.add(pair);
-            if (pairList.size() == 0) {
-                System.err.println("Pair list is empty");
+            if ("ACTIVE".equalsIgnoreCase(s.getStatus().getName())) {
+                Pair<String, String> pair = new Pair<>(s.getQuestion(), s.getResponse());
+                pairList.add(pair);
+                if (pairList.size() == 0) {
+                    System.err.println("Pair list is empty");
+                }
             }
         }
         return pairList;
