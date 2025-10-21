@@ -104,16 +104,16 @@ public class AuthController {
 
         User user = (User) auth.getPrincipal();
 
-        // 2️⃣ Extrage ultimul email fără a modifica User
+        // Extrage ultimul email fără a modifica User
         Email lastEmail = null;
         Set<Email> emails = user.getEmails();
         if (emails != null && !emails.isEmpty()) {
             for (Email e : emails) {
-                lastEmail = e; // la finalul iterației, lastEmail va fi "ultimul" din iterator
+                lastEmail = e;
             }
         }
 
-        // 3️⃣ Trimite tokenul pe email, dacă există
+        // 3 Trimite tokenul pe email, dacă există
         if (lastEmail != null) {
             try {
                 emailService.sendEmail(
