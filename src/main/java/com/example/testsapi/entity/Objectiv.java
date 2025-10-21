@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Objectiv {
+public class Objectiv implements Comparable<Objectiv>{
     protected String nume;
     protected String id;
     protected boolean mainObiectiv;
@@ -116,5 +116,9 @@ public class Objectiv {
                 '}';
     }
 
+    @Override
+    public int compareTo(Objectiv o) {
+        return this.getId().compareTo(o.getId());
+    }
 
 }

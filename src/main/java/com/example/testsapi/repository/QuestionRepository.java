@@ -17,4 +17,6 @@ public interface QuestionRepository extends JpaRepository<Question, QuestionId> 
     @Query(value = "SELECT * FROM question q WHERE JSON_UNQUOTE(JSON_EXTRACT(q.question, '$.mainObjectives[0].name')) = :objective", nativeQuery = true)
     List<Question> findByMainObjective(@Param("objective") String objective);
     Optional<Question> findByQuestionId_IdQuestion(String idQuestion);
+    List<Question> findAllByQuestionId_IdQuestionIn(List<String> ids);
+
 }
