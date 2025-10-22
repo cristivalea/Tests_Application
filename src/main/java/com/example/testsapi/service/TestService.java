@@ -1,15 +1,18 @@
 package com.example.testsapi.service;
 
 import com.example.testsapi.entity.*;
-import com.example.testsapi.repository.MainObjectiveRepository;
-import com.example.testsapi.repository.QuestionTestRepository;
-import com.example.testsapi.repository.SecondaryObjectiveRepository;
-import com.example.testsapi.repository.TestRepository;
+import com.example.testsapi.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.io.InputStream;
 import java.util.*;
 
 @Service
@@ -23,6 +26,8 @@ public class TestService {
     private MainObjectiveRepository mainObjectivesRepository;
     @Autowired
     private SecondaryObjectiveRepository secondaryObjectivesRepository;
+    @Autowired
+    private QuestionRepository questionRepository;
 
     //metoda aceasta este utilizata in controller, aceasta apeland generarea idului testului
     public String generateIdForUser(String userId, List<Question> questions) {
@@ -152,6 +157,53 @@ public class TestService {
             }
         }
         return duration;
+    }
+
+    public static List<Integer> getSubObjectivesById(int idObjectiv, String xmlFileName) {
+        List<Integer> subIds = new ArrayList<>();
+        try {
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+
+            InputStream xmlInput = new ClassPathResource(xmlFileName).getInputStream();
+            Document document = documentBuilder.parse(xmlInput);
+
+            NodeList objectives = document.getElementsByTagName("obiectiv");
+            for (int i = 0; i < objectives.getLength(); i++) {
+                Element objectiv = (Element) objectives.item(i);
+                if (String.valueOf(idObjectiv).equals(objectiv.getAttribute("id"))) {
+                    NodeList subObjectives = objectiv.getElementsByTagName("obiectiv");
+                    for (int j = 0; j < subObjectives.getLength(); j++) {
+                        Element subvObj = (Element) subObjectives.item(j);
+                        subIds.add(Integer.parseInt(subvObj.getAttribute("id")));
+                    }
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+        return subIds;
+    }
+
+
+
+    public List<List<Question>> selectToGenerateBeginnerTest(String level, int idObjectiv) {
+        List<List<Question>> questionsSubObjectives = new ArrayList<>();
+
+        String xmlPath = new ClassPathResource("objectives.xml").getPath();
+        System.out.println(xmlPath);
+        List<Integer> subObjIds = getSubObjectivesById(idObjectiv, xmlPath);
+
+        for (Integer subObjId : subObjIds) {
+            List<Question> questions = questionRepository.findByLevelAndObjectives(level, idObjectiv, subObjId);
+            questionsSubObjectives.add(questions);
+
+            System.out.println("✅ Găsite " + questions.size() +
+                    " întrebări pentru subobiectivul " + subObjId);
+        }
+
+        return questionsSubObjectives;
     }
 }
 

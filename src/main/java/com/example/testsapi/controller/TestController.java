@@ -49,4 +49,12 @@ public class TestController {
         return testService.addPrinciplesObjectivesInList(subObj);
     }
 
+    @GetMapping("/beginner/{level}/{idObjectiv}")
+    public List<List<Question>> generateBeginnerTest(
+            @PathVariable String level,
+            @PathVariable int idObjectiv
+    ) {
+        return testService.selectToGenerateBeginnerTest(level, idObjectiv);
+    }
+
 }
