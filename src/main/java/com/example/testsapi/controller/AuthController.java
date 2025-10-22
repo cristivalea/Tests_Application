@@ -125,9 +125,15 @@ public class AuthController {
                 System.err.println("Eroare trimitere email: " + e.getMessage());
             }
         }
+        ArrayList<String> roles = new ArrayList<>();
+        for(var v : user.getAuthorities()){
+            roles.add(v.getAuthority());
+        }
 
         // 4️⃣ Returnează mesaj de succes
-        return ResponseEntity.ok(new MessageResponse("Login reușit! Tokenul a fost trimis pe email."));
+        JwtResponse resp = new JwtResponse(token, user.getIdUser(), user.getUsername(), user.getFirstName(), user.getSecondName(), roles);
+
+        return ResponseEntity.ok(resp);
     }
 
 
