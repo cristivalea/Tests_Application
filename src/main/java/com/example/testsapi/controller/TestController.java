@@ -1,7 +1,9 @@
 package com.example.testsapi.controller;
 
+import com.example.testsapi.entity.LevelTest;
 import com.example.testsapi.entity.Objectiv;
 import com.example.testsapi.entity.Question;
+import com.example.testsapi.entity.Test;
 import com.example.testsapi.repository.QuestionRepository;
 import com.example.testsapi.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,12 +51,13 @@ public class TestController {
         return testService.addPrinciplesObjectivesInList(subObj);
     }
 
-    @GetMapping("/beginner/{level}/{idObjectiv}")
-    public List<Question> generateBeginnerTest(
+    @GetMapping("/beginner/{userId}/{level}/{idObjectiv}")
+    public Test generateBeginnerTest(
             @PathVariable String level,
-            @PathVariable int idObjectiv
+            @PathVariable int idObjectiv,
+            @PathVariable String userId
     ) {
-        return testService.generateTestBeginnerAndIntermediate(level, idObjectiv);
+        return testService.writeBeginnerIntermediateTest(userId, level, idObjectiv);
     }
 
 }

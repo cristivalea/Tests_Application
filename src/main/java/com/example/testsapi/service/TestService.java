@@ -28,6 +28,8 @@ public class TestService {
     private SecondaryObjectiveRepository secondaryObjectivesRepository;
     @Autowired
     private QuestionRepository questionRepository;
+    @Autowired
+    private UserTestRepository userTestRepository;
 
     //metoda aceasta este utilizata in controller, aceasta apeland generarea idului testului
     public String generateIdForUser(String userId, List<Question> questions) {
@@ -187,7 +189,6 @@ public class TestService {
     }
 
 
-
     private List<List<Question>> selectToGenerateBeginnerTest(String level, int idObjectiv) {
         List<List<Question>> questionsSubObjectives = new ArrayList<>();
 
@@ -199,14 +200,15 @@ public class TestService {
             List<Question> questions = questionRepository.findByLevelAndObjectives(level, idObjectiv, subObjId);
             questionsSubObjectives.add(questions);
 
-            System.out.println("✅ Găsite " + questions.size() +
+            System.out.println("Găsite " + questions.size() +
                     " întrebări pentru subobiectivul " + subObjId);
         }
 
         return questionsSubObjectives;
     }
 
-    public  List<Question> generateTestBeginnerAndIntermediate(String level, int obj) {
+    //generate test / objectiv
+    private List<Question> generateTestBeginnerAndIntermediate(String level, int obj) {
         Random random = new Random();
         int numberQuestions = random.nextInt(70, 81);
         System.out.println("Nr total intrebari: " + numberQuestions);
@@ -243,6 +245,34 @@ public class TestService {
 
         Collections.shuffle(test);
 
+        return test;
+    }
+
+    public Test writeBeginnerIntermediateTest(String userId, String level, int obj){
+        List<Question> questions = generateTestBeginnerAndIntermediate(level, obj);
+        String idTest = generateId(userId, questions);
+        int nrOfQuestions = questions.size();
+        int duration = extractdurationOfTest(questions);
+
+        UserTest userTest = new UserTest();
+        userTest.setIdTest(idTest);
+        userTest.setIdUser(userId);
+        userTestRepository.save(userTest);
+
+        Test test = new Test();
+        test.setIdTest(idTest);
+        test.setNrOfObjectives(1);
+        test.setLevel(LevelTest.BEGINNER);
+        test.setNrOfQuestions(nrOfQuestions);
+        test.setEstimatedDuration(duration);
+        testRepository.save(test);
+
+        for (Question q : questions) {
+            QuestionTest link = new QuestionTest();
+            link.setIdTest(idTest);
+            link.setIdQuestion(q.getQuestionId().getIdQuestion());
+            questionTestRepository.save(link);
+        }
         return test;
     }
 }
