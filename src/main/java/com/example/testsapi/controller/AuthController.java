@@ -25,10 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -81,60 +78,116 @@ public class AuthController {
         }
     }
 
+//    @PostMapping("/login1")
+//    public ResponseEntity<?> loginUser1(@Valid @RequestBody LoginRequest loginRequest) {
+//
+//        Authentication auth;
+//        try {
+//            auth = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(
+//                            loginRequest.getUsername(),
+//                            loginRequest.getPassword()
+//                    )
+//            );
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest()
+//                    .body(new MessageResponse("Error: Invalid username or password!"));
+//        }
+//
+//        SecurityContextHolder.getContext().setAuthentication(auth);
+//        String token = jwtUtils.generateJwtToken(auth);
+//
+//        User user = (User) auth.getPrincipal();
+//
+//        Email lastEmail = null;
+//        Set<Email> emails = user.getEmails();
+//        if (emails != null && !emails.isEmpty()) {
+//            for (Email e : emails) {
+//                lastEmail = e;
+//            }
+//        }
+//
+//        if (lastEmail != null) {
+//            try {
+//                emailService.sendEmail(
+//                        lastEmail.getEmail(),
+//                        "Tokenul tău de autentificare",
+//                        "Salut " + user.getFirstName() + ",\n\nTokenul tău JWT este:\n" + token
+//                );
+//            } catch (Exception e) {
+//                System.err.println("Eroare trimitere email: " + e.getMessage());
+//            }
+//        }
+//        ArrayList<String> roles = new ArrayList<>();
+//        for(var v : user.getAuthorities()){
+//            roles.add(v.getAuthority());
+//        }
+//
+//        JwtResponse resp = new JwtResponse(token, user.getIdUser(), user.getUsername(), user.getFirstName(), user.getSecondName(), roles);
+//
+//        return ResponseEntity.ok(resp);
+//    }
+
     @PostMapping("/login1")
     public ResponseEntity<?> loginUser1(@Valid @RequestBody LoginRequest loginRequest) {
 
-        Authentication auth;
         try {
-            // 1️⃣ Autentificare
-            auth = authenticationManager.authenticate(
+            // 1. Autentificare
+            Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
                             loginRequest.getPassword()
                     )
             );
+
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            String token = jwtUtils.generateJwtToken(auth);
+
+            User user = (User) auth.getPrincipal();
+
+            // 2. Preluare roluri
+            ArrayList<String> roles = new ArrayList<>();
+            for (var v : user.getAuthorities()) {
+                roles.add(v.getAuthority());
+            }
+
+            // 3. Extragem ultimul email al utilizatorului curent
+            Email lastEmail = user.getEmails().stream()
+                    .filter(e -> e.getUser().getIdUser().equals(user.getIdUser()))
+                    .max(Comparator.comparingLong(Email::getId)) // email cu cel mai mare id
+                    .orElse(null);
+
+            // 4. Trimitere email cu token dacă există
+            if (lastEmail != null) {
+                try {
+                    emailService.sendEmail(
+                            lastEmail.getEmail(),
+                            "Tokenul tău de autentificare",
+                            "Salut " + user.getFirstName() + ",\n\nTokenul tău JWT este:\n" + token
+                    );
+                } catch (Exception e) {
+                    System.err.println("Eroare trimitere email: " + e.getMessage());
+                }
+            }
+
+            // 5. Construim răspuns JWT
+            JwtResponse resp = new JwtResponse(
+                    token,
+                    user.getIdUser(),
+                    user.getUsername(),
+                    user.getFirstName(),
+                    user.getSecondName(),
+                    roles
+            );
+
+            return ResponseEntity.ok(resp);
+
         } catch (Exception e) {
-            // dacă username sau parola sunt greșite
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("Error: Invalid username or password!"));
         }
-
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        String token = jwtUtils.generateJwtToken(auth);
-
-        User user = (User) auth.getPrincipal();
-
-        // Extrage ultimul email fără a modifica User
-        Email lastEmail = null;
-        Set<Email> emails = user.getEmails();
-        if (emails != null && !emails.isEmpty()) {
-            for (Email e : emails) {
-                lastEmail = e;
-            }
-        }
-
-        // 3 Trimite tokenul pe email, dacă există
-        if (lastEmail != null) {
-            try {
-                emailService.sendEmail(
-                        lastEmail.getEmail(),
-                        "Tokenul tău de autentificare",
-                        "Salut " + user.getFirstName() + ",\n\nTokenul tău JWT este:\n" + token
-                );
-            } catch (Exception e) {
-                System.err.println("Eroare trimitere email: " + e.getMessage());
-            }
-        }
-        ArrayList<String> roles = new ArrayList<>();
-        for(var v : user.getAuthorities()){
-            roles.add(v.getAuthority());
-        }
-
-        // 4️⃣ Returnează mesaj de succes
-        JwtResponse resp = new JwtResponse(token, user.getIdUser(), user.getUsername(), user.getFirstName(), user.getSecondName(), roles);
-
-        return ResponseEntity.ok(resp);
     }
+
 
 
     @PostMapping("/register")

@@ -188,7 +188,7 @@ public class TestService {
 
 
 
-    public List<List<Question>> selectToGenerateBeginnerTest(String level, int idObjectiv) {
+    private List<List<Question>> selectToGenerateBeginnerTest(String level, int idObjectiv) {
         List<List<Question>> questionsSubObjectives = new ArrayList<>();
 
         String xmlPath = new ClassPathResource("objectives.xml").getPath();
@@ -204,6 +204,46 @@ public class TestService {
         }
 
         return questionsSubObjectives;
+    }
+
+    public  List<Question> generateTestBeginnerAndIntermediate(String level, int obj) {
+        Random random = new Random();
+        int numberQuestions = random.nextInt(70, 81);
+        System.out.println("Nr total intrebari: " + numberQuestions);
+
+
+        List<List<Question>> extractperSubObjective = selectToGenerateBeginnerTest(level, obj);
+
+        int sizeList = extractperSubObjective.size();
+        int questRemaining = numberQuestions % sizeList;
+        int numberExtract = numberQuestions / sizeList;
+
+        System.out.println("Nr sub-obiective: " + sizeList);
+        System.out.println("Intrebari per sub-obiectiv: " + numberExtract);
+        System.out.println("Rest de distribuit: " + questRemaining);
+
+        List<Question> test = new ArrayList<>();
+
+        for (List<Question> subList : extractperSubObjective) {
+            Collections.shuffle(subList);
+            for (int i = 0; i < Math.min(numberExtract, subList.size()); i++) {
+                test.add(subList.get(i));
+            }
+        }
+
+        int idx = 0;
+        while (questRemaining > 0) {
+            List<Question> subList = extractperSubObjective.get(idx % sizeList);
+            if (!subList.isEmpty()) {
+                test.add(subList.get(random.nextInt(subList.size()))); // luam random
+                questRemaining--;
+            }
+            idx++;
+        }
+
+        Collections.shuffle(test);
+
+        return test;
     }
 }
 

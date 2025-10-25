@@ -50,11 +50,11 @@ public class TestController {
     }
 
     @GetMapping("/beginner/{level}/{idObjectiv}")
-    public List<List<Question>> generateBeginnerTest(
+    public List<Question> generateBeginnerTest(
             @PathVariable String level,
             @PathVariable int idObjectiv
     ) {
-        return testService.selectToGenerateBeginnerTest(level, idObjectiv);
+        return testService.generateTestBeginnerAndIntermediate(level, idObjectiv);
     }
 
 }
