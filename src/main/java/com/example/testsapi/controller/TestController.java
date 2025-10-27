@@ -51,6 +51,12 @@ public class TestController {
         return testService.addPrinciplesObjectivesInList(subObj);
     }
 
+    @PostMapping("/secondary_objectives")
+    public List<Object> getSecondaryObjectives(@RequestBody List<Question> questions){
+        return testService.extractSecondaryObjectivesFromQuestions(questions);
+    }
+
+
     @GetMapping("/beginner/{userId}/{level}/{idObjectiv}")
     public Test generateBeginnerTest(
             @PathVariable String level,
@@ -59,5 +65,19 @@ public class TestController {
     ) {
         return testService.writeBeginnerIntermediateTest(userId, level, idObjectiv);
     }
+
+    @GetMapping("/distance")
+    public double calculateDistance(
+            @RequestParam String questionId1,
+            @RequestParam String questionId2
+    ) {
+        Question q1 = questionRepository.findByQuestionId_IdQuestion(questionId1)
+                .orElseThrow(() -> new RuntimeException("Întrebarea 1 nu există în DB!"));
+        Question q2 = questionRepository.findByQuestionId_IdQuestion(questionId2)
+                .orElseThrow(() -> new RuntimeException("Întrebarea 2 nu există în DB!"));
+
+        return testService.distanceToQuestion(q1, q2);
+    }
+
 
 }

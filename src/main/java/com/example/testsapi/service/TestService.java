@@ -2,6 +2,8 @@ package com.example.testsapi.service;
 
 import com.example.testsapi.entity.*;
 import com.example.testsapi.repository.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,8 @@ public class TestService {
     private QuestionRepository questionRepository;
     @Autowired
     private UserTestRepository userTestRepository;
+    @Autowired
+    private QuestionLabelsRepository questionLabelRepository;
 
     //metoda aceasta este utilizata in controller, aceasta apeland generarea idului testului
     public String generateIdForUser(String userId, List<Question> questions) {
@@ -37,77 +41,205 @@ public class TestService {
     }
 
     //genereaza id pentru fiecare test
+//    private String generateId(String userId, List<Question> questions) {
+//        String idTest = "";
+//
+//        Random random = new Random();
+//        List<Integer> generateRandomNumber = new ArrayList<Integer>();
+//        int number = 0;
+//        do {
+//            number = random.nextInt(900) + 100;
+//        } while (generateRandomNumber.contains(number));
+//        generateRandomNumber.add(number);
+//
+//        System.out.println("==============================" + number + "===========================");
+//        List<Object> objectives = extractObjectivesFromQuestions(questions);
+//        System.out.println("=========================" + objectives.size() + "===========================================");
+//
+//        if (objectives.size() == 1) {
+//            idTest = userId + "ob" + number;
+//        } else if (objectives.size() > 1 && objectives.size() < 4) {
+//            StringBuilder sb = new StringBuilder(userId);
+//            for (Object obj : objectives) {
+//                if (obj instanceof MainObjective mo)
+//                    sb.append(mo.getIdObjectiv());
+//                else if (obj instanceof SecondaryObjective so)
+//                    sb.append(so.getIdObjectiv());
+//            }
+//            sb.append(number);
+//            idTest = sb.toString();
+//        }
+//        return idTest;
+//    }
+
     private String generateId(String userId, List<Question> questions) {
         String idTest = "";
 
         Random random = new Random();
-        List<Integer> generateRandomNumber = new ArrayList<Integer>();
-        int number = 0;
-        do {
-            number = random.nextInt(900) + 100;
-        } while (generateRandomNumber.contains(number));
-        generateRandomNumber.add(number);
+        int number = random.nextInt(900) + 100;
 
-        List<Object> objectives = extractObjectivesFromQuestions(questions);
-        List<Object> subobj = extractSecondaryObjectivesFromQuestion(questions);
+        System.out.println("==================== Generare ID pentru test ====================");
+        List<Object> objectivesP = extractObjectivesFromQuestions(questions);
+        Set<Object> setObj = new TreeSet<>(objectivesP);
+        List<Object> objectives = new ArrayList<>(setObj);
 
-        if (objectives.size() == 1) {
-            idTest = userId + "ob" + number;
-        } else if (objectives.size() > 1 && objectives.size() < 4) {
+        if (objectives.isEmpty()) {
+            System.out.println("⚠️ Nu s-au găsit obiective pentru întrebările din test!");
+            idTest = userId + "_NOOBJ_" + number;
+        } else if (objectives.size() == 1) {
+            Object obj = objectives.get(0);
+            if (obj instanceof MainObjective mo) {
+                idTest = userId + "_OB" + mo.getIdObjectiv() + "_" + number;
+            } else if (obj instanceof SecondaryObjective so) {
+                idTest = userId + "_OB" + so.getIdObjectiv() + "_" + number;
+            }
+        } else {
             StringBuilder sb = new StringBuilder(userId);
             for (Object obj : objectives) {
                 if (obj instanceof MainObjective mo)
-                    sb.append(mo.getIdObjectiv());
+                    sb.append("_").append(mo.getIdObjectiv());
                 else if (obj instanceof SecondaryObjective so)
-                    sb.append(so.getIdObjectiv());
+                    sb.append("_").append(so.getIdObjectiv());
             }
-            sb.append(number);
+            sb.append("_").append(number);
             idTest = sb.toString();
-        } else {
-            idTest = userId + "F" + number;
         }
 
-        while (testRepository.existsByIdTest(idTest)) {
-            number = new Random().nextInt(900) + 100;
-            idTest = userId + "F" + number;
-        }
-
+        System.out.println("ID test generat: " + idTest);
         return idTest;
     }
 
-    //extrage obiectuvele peincipale ale intrebarilor retunate inlista de intrebari
+
+    //extrage obiectuvele peincipale ale intrebarilor retunate in lista de intrebari
     //se poate testa in controller dand o lista de id ale unor intrebari din bd in ruta
+//    private List<Object> extractObjectivesFromQuestions(List<Question> questions) {
+//        List<Object> objectives = new ArrayList<>();
+//
+//        for (Question q : questions) {
+//
+//            var mainObjs = mainObjectivesRepository.findByIdQuestion(
+//                    q.getQuestionId().getIdQuestion().toString()
+//            );
+//
+//
+//            objectives.addAll(mainObjs);
+//
+//            for (MainObjective mo : mainObjs) {
+//                System.out.println("Obiectiv principal: " + mo.getIdObjectiv() + " - " + mo.getNameObjectiv());
+//            }
+//        }
+//        System.out.println("Total obiective extrase: " + objectives.size());
+//        return objectives;
+//    }
+
     private List<Object> extractObjectivesFromQuestions(List<Question> questions) {
         List<Object> objectives = new ArrayList<>();
 
         for (Question q : questions) {
+            String qId = q.getQuestionId().getIdQuestion();
+            System.out.println("Caut obiective pentru întrebarea: " + qId);
 
-            var mainObjs = mainObjectivesRepository.findByIdQuestion(q.getQuestionId().getIdQuestion());;
+            var mainObjs = mainObjectivesRepository.findByIdQuestion(qId);
 
-            objectives.addAll(mainObjectivesRepository.findByIdQuestion(q.getQuestionId().getIdQuestion()));
+            if (mainObjs != null && !mainObjs.isEmpty()) {
+                objectives.addAll(mainObjs);
+                for (MainObjective mo : mainObjs) {
+                    System.out.println("Obiectiv principal (DB): " + mo.getIdObjectiv() + " - " + mo.getNameObjectiv());
+                }
+            } else {
+                // 2️⃣ Dacă nu există în DB, extragem din JSON-ul întrebării
+                try {
+                    String questionJson = q.getQuestion(); // presupunem că ai un câmp question cu JSON-ul complet
+                    if (questionJson != null && questionJson.contains("\"mainObjectives\"")) {
+                        // folosim Jackson pentru a extrage id-urile
+                        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                        com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(questionJson);
 
-            for (MainObjective mo : mainObjs) {
-                System.out.println("Obiectiv principal: " + mo.getIdObjectiv() + " - " + mo.getNameObjectiv());
+                        if (root.has("mainObjectives")) {
+                            for (com.fasterxml.jackson.databind.JsonNode objNode : root.get("mainObjectives")) {
+                                int idObj = objNode.path("id").asInt();
+                                String nameObj = objNode.path("name").asText();
+                                MainObjective mo = new MainObjective();
+                                mo.setIdObjectiv(idObj);
+                                mo.setNameObjectiv(nameObj);
+                                mo.setIdQuestion(qId);
+                                objectives.add(mo);
+                                System.out.println("Obiectiv principal (JSON): " + idObj + " - " + nameObj);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println(" Eroare la parsarea JSON-ului pentru întrebarea " + qId + ": " + e.getMessage());
+                }
             }
         }
-        System.out.println("Total obiective extrase: " + objectives.size());
+
+        System.out.println("🔢 Total obiective extrase: " + objectives.size());
         return objectives;
     }
 
-    // ca metoda de mai sus doar ca pentru obiectuve secundare
-    private List<Object> extractSecondaryObjectivesFromQuestion(List<Question> questions){
-        List<Object> subObjectives = new ArrayList<>();
-        for(Question q : questions){
-            var secondaryObjs = secondaryObjectivesRepository.findByIdQuestion(q.getQuestionId().getIdQuestion());
-            subObjectives.addAll(secondaryObjectivesRepository.findByIdQuestion(q.getQuestionId().getIdQuestion()));
 
-            for (SecondaryObjective so : secondaryObjs) {
-                System.out.println("Obiectiv secundar: " + so.getIdObjectiv() + " - " + so.getNameObjectiv());
+    // ca metoda de mai sus doar ca pentru obiectuve secundare
+//    private List<Object> extractSecondaryObjectivesFromQuestion(List<Question> questions){
+//        List<Object> subObjectives = new ArrayList<>();
+//        for(Question q : questions){
+//            var secondaryObjs = secondaryObjectivesRepository.findByIdQuestion(q.getQuestionId().getIdQuestion());
+//            subObjectives.addAll(secondaryObjectivesRepository.findByIdQuestion(q.getQuestionId().getIdQuestion()));
+//
+//            for (SecondaryObjective so : secondaryObjs) {
+//                System.out.println("Obiectiv secundar: " + so.getIdObjectiv() + " - " + so.getNameObjectiv());
+//            }
+//        }
+//        System.out.println("Total sub obiective extrase: " + subObjectives.size());
+//        return subObjectives;
+//    }
+    public List<Object> extractSecondaryObjectivesFromQuestions(List<Question> questions) {
+        List<Object> subObjectives = new ArrayList<>();
+
+        for (Question q : questions) {
+            String qId = q.getQuestionId().getIdQuestion();
+            System.out.println("🔍 Caut sub-obiective pentru întrebarea: " + qId);
+
+            // Încearcă să le ia din baza de date
+            var secondaryObjs = secondaryObjectivesRepository.findByIdQuestion(qId);
+
+            if (secondaryObjs != null && !secondaryObjs.isEmpty()) {
+                subObjectives.addAll(secondaryObjs);
+                for (SecondaryObjective so : secondaryObjs) {
+                    System.out.println("Obiectiv secundar (DB): " + so.getIdObjectiv() + " - " + so.getNameObjectiv());
+                }
+            }
+            //  Dacă nu există în DB, caută în JSON-ul întrebării
+            else {
+                try {
+                    String questionJson = q.getQuestion();
+                    if (questionJson != null && questionJson.contains("\"secondaryObjectives\"")) {
+                        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                        com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(questionJson);
+
+                        if (root.has("secondaryObjectives")) {
+                            for (com.fasterxml.jackson.databind.JsonNode objNode : root.get("secondaryObjectives")) {
+                                int idObj = objNode.path("id").asInt();
+                                String nameObj = objNode.path("name").asText();
+                                SecondaryObjective so = new SecondaryObjective();
+                                so.setIdObjectiv(idObj);
+                                so.setNameObjectiv(nameObj);
+                                so.setIdQuestion(qId);
+                                subObjectives.add(so);
+                                System.out.println(" Obiectiv secundar (JSON): " + idObj + " - " + nameObj);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println(" Eroare la parsarea JSON-ului pentru întrebarea " + qId + ": " + e.getMessage());
+                }
             }
         }
-        System.out.println("Total sub obiective extrase: " + subObjectives.size());
+
+        System.out.println("Total sub-obiective extrase: " + subObjectives.size());
         return subObjectives;
     }
+
 
     // extrage idul subobiectivelor
     private List<String> determinateObjectives(List<Objectiv> subObj){
@@ -208,7 +340,7 @@ public class TestService {
     }
 
     //generate test / objectiv
-    private List<Question> generateTestBeginnerAndIntermediate(String level, int obj) {
+    public List<Question> generateTestBeginnerAndIntermediate(String level, int obj) {
         Random random = new Random();
         int numberQuestions = random.nextInt(70, 81);
         System.out.println("Nr total intrebari: " + numberQuestions);
@@ -275,5 +407,112 @@ public class TestService {
         }
         return test;
     }
+
+    private Set<String> extractLabelsForQuestion(Question question) {
+        Set<String> labels = new HashSet<>();
+
+        try {
+            var questionLabels = questionLabelRepository.findByIdQuestion(
+                    question.getQuestionId().getIdQuestion()
+            );
+            for (QuestionLabels label : questionLabels) {
+                labels.add(label.getLabel().toLowerCase());
+            }
+        } catch (Exception e) {
+            System.err.println("⚠ Eroare la extragerea labelurilor pentru " +
+                    question.getQuestionId().getIdQuestion() + ": " + e.getMessage());
+        }
+
+        return labels;
+    }
+    private String extractGuiInterface(Question question) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(question.getQuestion());
+            JsonNode formatNode = node.get("format");
+            if (formatNode != null) {
+                return formatNode.asText();
+            }
+        } catch (Exception e) {
+            System.err.println("️ Eroare la extragerea GUI interface-ului din întrebare: "
+                    + question.getQuestionId().getIdQuestion() + " - " + e.getMessage());
+        }
+        return null;
+    }
+
+
+    public double distanceToQuestion(Question q1, Question q2) {
+        double distance = 0.0;
+
+        if (q1 == null || q2 == null) {
+            return 0.0;
+        }
+
+        // 1Dacă au același ID → 1.0
+        if (Objects.equals(q1.getQuestionId().getIdQuestion(), q2.getQuestionId().getIdQuestion())) {
+            return 1.0;
+        }
+
+        // Extragem obiectivele principale, secundare și label-urile
+        List<Object> mainObj1 = extractObjectivesFromQuestions(List.of(q1));
+        List<Object> mainObj2 = extractObjectivesFromQuestions(List.of(q2));
+        List<Object> secObj1 = extractSecondaryObjectivesFromQuestions(List.of(q1));
+        List<Object> secObj2 = extractSecondaryObjectivesFromQuestions(List.of(q2));
+
+        Set<String> mainIds1 = new HashSet<>();
+        Set<String> mainIds2 = new HashSet<>();
+        Set<String> secIds1 = new HashSet<>();
+        Set<String> secIds2 = new HashSet<>();
+
+        for (Object o : mainObj1)
+            if (o instanceof MainObjective mo) mainIds1.add(String.valueOf(mo.getIdObjectiv()));
+        for (Object o : mainObj2)
+            if (o instanceof MainObjective mo) mainIds2.add(String.valueOf(mo.getIdObjectiv()));
+        for (Object o : secObj1)
+            if (o instanceof SecondaryObjective so) secIds1.add(String.valueOf(so.getIdObjectiv()));
+        for (Object o : secObj2)
+            if (o instanceof SecondaryObjective so) secIds2.add(String.valueOf(so.getIdObjectiv()));
+
+        boolean sameMain = !Collections.disjoint(mainIds1, mainIds2);
+        boolean sameSec = !Collections.disjoint(secIds1, secIds2);
+
+        // același obiectiv, dar fără subobiective comune
+        if (sameMain && !sameSec) {
+            distance += 0.1;
+        }
+
+        // același obiectiv și subobiective comune, dar nivel diferit
+        if (sameMain && sameSec && !Objects.equals(q1.getLevel(), q2.getLevel())) {
+            Set<String> commonSec = new HashSet<>(secIds1);
+            commonSec.retainAll(secIds2);
+            distance += 0.1 * commonSec.size();
+        }
+
+        // Etichete (labels)
+        Set<String> labels1 = extractLabelsForQuestion(q1);
+        Set<String> labels2 = extractLabelsForQuestion(q2);
+        Set<String> commonLabels = new HashSet<>(labels1);
+        commonLabels.retainAll(labels2);
+
+        //  Aceleași obiective, subobiective și labeluri + același nivel
+        if (sameMain && sameSec && Objects.equals(q1.getLevel(), q2.getLevel())) {
+            distance += 0.1 * commonLabels.size();
+        }
+
+        //  Același nivel de dificultate
+        if (Objects.equals(q1.getLevel(), q2.getLevel())) {
+            distance += 0.2;
+        }
+
+        //  Aceeași interfață grafică
+        String gui1 = extractGuiInterface(q1);
+        String gui2 = extractGuiInterface(q2);
+        if (Objects.equals(gui1, gui2)) {
+            distance += 0.3;
+        }
+
+        return Math.min(distance, 1.0);
+    }
+
 }
 

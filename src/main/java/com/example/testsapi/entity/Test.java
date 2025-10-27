@@ -24,7 +24,8 @@ public class Test {
     @Column(name = "nrOfObjectives")
     private int nrOfObjectives;
 
-    @Column(name = "level", length = 100)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "level", length = 100, nullable = false)
     private LevelTest level;
 
     @Column(name = "nrOfQuestions")

@@ -26,4 +26,17 @@ public class Question {
 
     @Column(name = "domain", nullable = false, length = 100)
     private String domain;
+
+    public boolean equals(Object o){
+        if(o == null){
+            return false;
+        }
+        if(o instanceof Question){
+            Question q = (Question) o;
+            if(q.getQuestionId().getId() == this.questionId.getId() && q.getQuestionId().getIdQuestion().equals(this.questionId.getIdQuestion())){
+                return true;
+            }
+        }
+        return false;
+    }
 }

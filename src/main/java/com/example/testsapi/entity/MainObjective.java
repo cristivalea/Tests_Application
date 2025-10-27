@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "main_objectives")
-public class MainObjective {
+public class MainObjective implements Comparable<MainObjective>{
 
     @Id
     @Column(name = "id")
@@ -23,4 +23,9 @@ public class MainObjective {
 
     @Column(name = "nameObjectiv", nullable = false, length = 10000)
     private String nameObjectiv;
+
+    @Override
+    public int compareTo(MainObjective o) {
+        return this.idObjectiv.compareTo(o.idObjectiv);
+    }
 }
