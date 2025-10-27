@@ -339,74 +339,7 @@ public class TestService {
         return questionsSubObjectives;
     }
 
-    //generate test / objectiv
-    public List<Question> generateTestBeginnerAndIntermediate(String level, int obj) {
-        Random random = new Random();
-        int numberQuestions = random.nextInt(70, 81);
-        System.out.println("Nr total intrebari: " + numberQuestions);
 
-
-        List<List<Question>> extractperSubObjective = selectToGenerateBeginnerTest(level, obj);
-
-        int sizeList = extractperSubObjective.size();
-        int questRemaining = numberQuestions % sizeList;
-        int numberExtract = numberQuestions / sizeList;
-
-        System.out.println("Nr sub-obiective: " + sizeList);
-        System.out.println("Intrebari per sub-obiectiv: " + numberExtract);
-        System.out.println("Rest de distribuit: " + questRemaining);
-
-        List<Question> test = new ArrayList<>();
-
-        for (List<Question> subList : extractperSubObjective) {
-            Collections.shuffle(subList);
-            for (int i = 0; i < Math.min(numberExtract, subList.size()); i++) {
-                test.add(subList.get(i));
-            }
-        }
-
-        int idx = 0;
-        while (questRemaining > 0) {
-            List<Question> subList = extractperSubObjective.get(idx % sizeList);
-            if (!subList.isEmpty()) {
-                test.add(subList.get(random.nextInt(subList.size()))); // luam random
-                questRemaining--;
-            }
-            idx++;
-        }
-
-        Collections.shuffle(test);
-
-        return test;
-    }
-
-    public Test writeBeginnerIntermediateTest(String userId, String level, int obj){
-        List<Question> questions = generateTestBeginnerAndIntermediate(level, obj);
-        String idTest = generateId(userId, questions);
-        int nrOfQuestions = questions.size();
-        int duration = extractdurationOfTest(questions);
-
-        UserTest userTest = new UserTest();
-        userTest.setIdTest(idTest);
-        userTest.setIdUser(userId);
-        userTestRepository.save(userTest);
-
-        Test test = new Test();
-        test.setIdTest(idTest);
-        test.setNrOfObjectives(1);
-        test.setLevel(LevelTest.BEGINNER);
-        test.setNrOfQuestions(nrOfQuestions);
-        test.setEstimatedDuration(duration);
-        testRepository.save(test);
-
-        for (Question q : questions) {
-            QuestionTest link = new QuestionTest();
-            link.setIdTest(idTest);
-            link.setIdQuestion(q.getQuestionId().getIdQuestion());
-            questionTestRepository.save(link);
-        }
-        return test;
-    }
 
     private Set<String> extractLabelsForQuestion(Question question) {
         Set<String> labels = new HashSet<>();
@@ -512,6 +445,493 @@ public class TestService {
         }
 
         return Math.min(distance, 1.0);
+    }
+
+    //generate test / objectiv beginner and intermediate
+    public List<Question> generateTestBeginnerAndIntermediate(String level, int obj) {
+        Random random = new Random();
+        int numberQuestions = random.nextInt(70, 81);
+        System.out.println("Nr total intrebari: " + numberQuestions);
+
+
+        List<List<Question>> extractperSubObjective = selectToGenerateBeginnerTest(level, obj);
+
+        int sizeList = extractperSubObjective.size();
+        int questRemaining = numberQuestions % sizeList;
+        int numberExtract = numberQuestions / sizeList;
+
+        System.out.println("Nr sub-obiective: " + sizeList);
+        System.out.println("Intrebari per sub-obiectiv: " + numberExtract);
+        System.out.println("Rest de distribuit: " + questRemaining);
+
+        List<Question> test = new ArrayList<>();
+
+        for (List<Question> subList : extractperSubObjective) {
+            Collections.shuffle(subList);
+            for (int i = 0; i < Math.min(numberExtract, subList.size()); i++) {
+                test.add(subList.get(i));
+            }
+        }
+
+        int idx = 0;
+        while (questRemaining > 0) {
+            List<Question> subList = extractperSubObjective.get(idx % sizeList);
+            if (!subList.isEmpty()) {
+                test.add(subList.get(random.nextInt(subList.size()))); // luam random
+                questRemaining--;
+            }
+            idx++;
+        }
+
+        Collections.shuffle(test);
+
+        return test;
+    }
+
+    public  List<Question> generateHardTest(int obj) {
+        Random random = new Random();
+        int numberQuestions = random.nextInt(70, 81);
+        System.out.println("Nr total intrebari: " + numberQuestions);
+
+        List<List<Question>> softQ = selectToGenerateBeginnerTest("SOFTQUESTION", obj);
+        List<List<Question>> midQ = selectToGenerateBeginnerTest("MIDLELEVELQUESTION", obj);
+        List<List<Question>> hardQ = selectToGenerateBeginnerTest("HARDQUESTION", obj);
+
+        List<Question> allSoft = new ArrayList<>();
+        List<Question> allMid = new ArrayList<>();
+        List<Question> allHard = new ArrayList<>();
+
+        softQ.forEach(allSoft::addAll);
+        midQ.forEach(allMid::addAll);
+        hardQ.forEach(allHard::addAll);
+
+
+        int pSoft = random.nextInt(10, 30);
+        int pMid  = random.nextInt(10, 30);
+        int pHard = 100 - pSoft - pMid;
+
+
+        if (pHard < 50) {
+            pHard = 50;
+            int rest = 50;
+            pSoft = random.nextInt(0, rest + 1);
+            pMid = rest - pSoft;
+        }
+
+        int nrSoft = (pSoft * numberQuestions) / 100;
+        int nrMid  = (pMid * numberQuestions) / 100;
+        int nrHard = numberQuestions - nrSoft - nrMid;
+
+        System.out.println("========= Distribuție întrebări =========");
+        System.out.println("SOFT: " + nrSoft + " (" + pSoft + "%)");
+        System.out.println("MID : " + nrMid  + " (" + pMid  + "%)");
+        System.out.println("HARD: " + nrHard + " (" + pHard + "%)");
+        System.out.println("=========================================");
+
+
+
+        if(nrSoft > allSoft.size() || nrMid > allMid.size()){
+            System.err.println("Insuficiente intrebari");
+        }
+
+        if (nrHard > allHard.size()) {
+            int deficit = nrHard - allHard.size();
+            nrHard = allHard.size();
+
+            while (deficit > 0) {
+                if (nrSoft < allSoft.size()) {
+                    nrSoft++;
+                } else if (nrMid < allMid.size()) {
+                    nrMid++;
+                }
+                deficit--;
+            }
+        }
+
+        int totalTime = nrSoft * 60 + nrMid * 100 + nrHard * 150;
+        int epsilon = random.nextInt(0, 6); // între 0 și 5
+        int maxTime = 150 * 60 - epsilon;
+
+        if (totalTime > maxTime) {
+            System.out.println("Timp depășit (" + totalTime + "s). Regenerăm...");
+            return generateHardTest(obj); // recursiv, regenerăm testul
+        }
+
+        List<Question> test = new ArrayList<>();
+        Collections.shuffle(allSoft);
+        Collections.shuffle(allMid);
+        Collections.shuffle(allHard);
+
+        test.addAll(allSoft.subList(0, Math.min(nrSoft, allSoft.size())));
+        test.addAll(allMid.subList(0, Math.min(nrMid, allMid.size())));
+        test.addAll(allHard.subList(0, Math.min(nrHard, allHard.size())));
+
+        Collections.shuffle(test);
+        return test;
+    }
+
+    //extract questions for beginner and intermediate test / more objectives
+    private List<List<Question>> selectToGenerateBeginnerIntermediateTestMoreObj(String level, int[] idObjectiv) {
+        List<List<Question>> questionsSubObjectives = new ArrayList<>();
+        try {
+            String xmlPath = new ClassPathResource("objectives.xml").getPath();
+            for (int objId : idObjectiv) {
+                List<Integer> subObjIds = getSubObjectivesById(objId, xmlPath);
+                for (Integer subObjId : subObjIds) {
+                    List<Question> questions = questionRepository.findByLevelAndObjectives(level, objId, subObjId);
+                    questionsSubObjectives.add(questions);
+                    System.out.println("Găsite " + questions.size() +
+                            " întrebări pentru obiectivul " + objId +
+                            ", subobiectivul " + subObjId);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Eroare la generarea testului: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return questionsSubObjectives;
+    }
+
+    // generate test for beginner and intermediate using more main objectives
+    public  List<Question> generateTestBeginnerAndIntermediateMoreObj(String level, int[] obj) {
+        Random random = new Random();
+        int numberQuestions = random.nextInt(70, 81);
+        System.out.println("Nr total intrebari: " + numberQuestions);
+
+
+        List<List<Question>> extractperSubObjective = selectToGenerateBeginnerIntermediateTestMoreObj(level, obj);
+
+        int sizeList = extractperSubObjective.size();
+        int questRemaining = numberQuestions % sizeList;
+        int numberExtract = numberQuestions / sizeList;
+
+        System.out.println("Nr sub-obiective: " + sizeList);
+        System.out.println("Intrebari per sub-obiectiv: " + numberExtract);
+        System.out.println("Rest de distribuit: " + questRemaining);
+
+        List<Question> test = new ArrayList<>();
+
+        for (List<Question> subList : extractperSubObjective) {
+            Collections.shuffle(subList);
+            for (int i = 0; i < Math.min(numberExtract, subList.size()); i++) {
+                test.add(subList.get(i));
+            }
+        }
+
+        int idx = 0;
+        while (questRemaining > 0) {
+            List<Question> subList = extractperSubObjective.get(idx % sizeList);
+            if (!subList.isEmpty()) {
+                test.add(subList.get(random.nextInt(subList.size())));
+                questRemaining--;
+            }
+            idx++;
+        }
+        Collections.shuffle(test);
+        return test;
+    }
+
+    //generate hard test for more objectives
+    public List<Question> generateHardTestMoreObj(int[] obj) {
+        Random random = new Random();
+        int numberQuestions = random.nextInt(70, 81);
+        System.out.println("Nr total intrebari: " + numberQuestions);
+
+        List<List<Question>> softQ = selectToGenerateBeginnerIntermediateTestMoreObj("SOFTQUESTION", obj);
+        List<List<Question>> midQ = selectToGenerateBeginnerIntermediateTestMoreObj("MIDLELEVELQUESTION", obj);
+        List<List<Question>> hardQ = selectToGenerateBeginnerIntermediateTestMoreObj("HARDQUESTION", obj);
+
+        List<Question> allSoft = new ArrayList<>();
+        List<Question> allMid = new ArrayList<>();
+        List<Question> allHard = new ArrayList<>();
+
+        softQ.forEach(allSoft::addAll);
+        midQ.forEach(allMid::addAll);
+        hardQ.forEach(allHard::addAll);
+
+
+        int pSoft = random.nextInt(10, 30);
+        int pMid  = random.nextInt(10, 30);
+        int pHard = 100 - pSoft - pMid;
+
+
+        if (pHard < 50) {
+            pHard = 50;
+            int rest = 50;
+            pSoft = random.nextInt(0, rest + 1);
+            pMid = rest - pSoft;
+        }
+
+        int nrSoft = (pSoft * numberQuestions) / 100;
+        int nrMid  = (pMid * numberQuestions) / 100;
+        int nrHard = numberQuestions - nrSoft - nrMid;
+
+
+        if(nrSoft > allSoft.size() || nrMid > allMid.size()){
+            System.err.println("Insuficiente intrebari");
+        }
+
+        if (nrHard > allHard.size()) {
+            int deficit = nrHard - allHard.size();
+            nrHard = allHard.size();
+
+            while (deficit > 0) {
+                if (nrSoft < allSoft.size()) {
+                    nrSoft++;
+                } else if (nrMid < allMid.size()) {
+                    nrMid++;
+                }
+                deficit--;
+            }
+        }
+
+        int totalTime = nrSoft * 60 + nrMid * 100 + nrHard * 150;
+        int epsilon = random.nextInt(0, 6); // între 0 și 5
+        int maxTime = 150 * 60 - epsilon;
+
+        if (totalTime > maxTime) {
+            System.out.println("Timp depășit (" + totalTime + "s). Regenerăm...");
+            return generateHardTestMoreObj(obj);
+        }
+
+        List<Question> test = new ArrayList<>();
+        Collections.shuffle(allSoft);
+        Collections.shuffle(allMid);
+        Collections.shuffle(allHard);
+
+        test.addAll(allSoft.subList(0, Math.min(nrSoft, allSoft.size())));
+        test.addAll(allMid.subList(0, Math.min(nrMid, allMid.size())));
+        test.addAll(allHard.subList(0, Math.min(nrHard, allHard.size())));
+
+        Collections.shuffle(test);
+        return test;
+    }
+
+    public int[] extractAllObjectivesId(){
+        try {
+            File xmlFile = new ClassPathResource("objectives.xml").getFile();
+            List<Objectiv> listObj = Objectiv.readObjectiv(xmlFile.getAbsolutePath());
+            int[] idObjectives = new int[listObj.size()];
+            for(int i = 0; i < listObj.size(); i++){
+                idObjectives[i] = Integer.parseInt(listObj.get(i).getId());
+            }
+            return idObjectives;
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    //generate the final test using the total objectives - level beginner and intermediate
+    public List<Question> generateTestBeginnerAndIntermediateAllObjectives(String level) {
+        int[] obj = extractAllObjectivesId();
+        Random random = new Random();
+        int numberQuestions = random.nextInt(70, 81);
+        System.out.println("Nr total intrebari: " + numberQuestions);
+
+
+        List<List<Question>> extractperSubObjective = selectToGenerateBeginnerIntermediateTestMoreObj(level, obj);
+
+        int sizeList = extractperSubObjective.size();
+        int questRemaining = numberQuestions % sizeList;
+        int numberExtract = numberQuestions / sizeList;
+
+        System.out.println("Nr sub-obiective: " + sizeList);
+        System.out.println("Intrebari per sub-obiectiv: " + numberExtract);
+        System.out.println("Rest de distribuit: " + questRemaining);
+
+        List<Question> test = new ArrayList<>();
+
+        for (List<Question> subList : extractperSubObjective) {
+            Collections.shuffle(subList);
+            for (int i = 0; i < Math.min(numberExtract, subList.size()); i++) {
+                test.add(subList.get(i));
+            }
+        }
+
+        int idx = 0;
+        while (questRemaining > 0) {
+            List<Question> subList = extractperSubObjective.get(idx % sizeList);
+            if (!subList.isEmpty()) {
+                test.add(subList.get(random.nextInt(subList.size())));
+                questRemaining--;
+            }
+            idx++;
+        }
+
+        Collections.shuffle(test);
+
+        return test;
+    }
+
+    //generate the final test of the hard level using tha total objectives
+    public List<Question> generateHardTestAllObj() {
+        int[] obj = extractAllObjectivesId();
+        Random random = new Random();
+        int numberQuestions = random.nextInt(70, 81);
+        System.out.println("Nr total intrebari: " + numberQuestions);
+
+        List<List<Question>> softQ = selectToGenerateBeginnerIntermediateTestMoreObj("SOFTQUESTION", obj);
+        List<List<Question>> midQ = selectToGenerateBeginnerIntermediateTestMoreObj("MIDLELEVELQUESTION", obj);
+        List<List<Question>> hardQ = selectToGenerateBeginnerIntermediateTestMoreObj("HARDQUESTION", obj);
+
+        List<Question> allSoft = new ArrayList<>();
+        List<Question> allMid = new ArrayList<>();
+        List<Question> allHard = new ArrayList<>();
+
+        softQ.forEach(allSoft::addAll);
+        midQ.forEach(allMid::addAll);
+        hardQ.forEach(allHard::addAll);
+
+
+        int pSoft = random.nextInt(10, 30);
+        int pMid  = random.nextInt(10, 30);
+        int pHard = 100 - pSoft - pMid;
+
+
+        if (pHard < 50) {
+            pHard = 50;
+            int rest = 50;
+            pSoft = random.nextInt(0, rest + 1);
+            pMid = rest - pSoft;
+        }
+
+        int nrSoft = (pSoft * numberQuestions) / 100;
+        int nrMid  = (pMid * numberQuestions) / 100;
+        int nrHard = numberQuestions - nrSoft - nrMid;
+
+
+        if(nrSoft > allSoft.size() || nrMid > allMid.size()){
+            System.err.println("Insuficiente intrebari");
+        }
+
+        if (nrHard > allHard.size()) {
+            int deficit = nrHard - allHard.size();
+            nrHard = allHard.size();
+
+            while (deficit > 0) {
+                if (nrSoft < allSoft.size()) {
+                    nrSoft++;
+                } else if (nrMid < allMid.size()) {
+                    nrMid++;
+                }
+                deficit--;
+            }
+        }
+
+        int totalTime = nrSoft * 60 + nrMid * 100 + nrHard * 150;
+        int epsilon = random.nextInt(0, 6); // între 0 și 5
+        int maxTime = 150 * 60 - epsilon;
+
+        if (totalTime > maxTime) {
+            System.out.println("⚠️ Timp depășit (" + totalTime + "s). Regenerăm...");
+            return generateHardTestMoreObj(obj);
+        }
+
+        List<Question> test = new ArrayList<>();
+        Collections.shuffle(allSoft);
+        Collections.shuffle(allMid);
+        Collections.shuffle(allHard);
+
+        test.addAll(allSoft.subList(0, Math.min(nrSoft, allSoft.size())));
+        test.addAll(allMid.subList(0, Math.min(nrMid, allMid.size())));
+        test.addAll(allHard.subList(0, Math.min(nrHard, allHard.size())));
+
+        Collections.shuffle(test);
+        return test;
+    }
+
+    //write the test with all objectives
+    public Test writingFinalTest(String userId, String level){
+        List<Question> questions = new ArrayList<>();
+        if(level.equals(LevelTest.BEGINNER.getDenumire()) || level.equals(LevelTest.INTERMEDIATE.getDenumire())){
+            questions = generateTestBeginnerAndIntermediateAllObjectives(level);
+        } else if(level.equals(LevelTest.HARD.getDenumire())){
+            questions = generateHardTestAllObj();
+        }
+        String idTest = generateId(userId, questions);
+        int nrOfQuestions = questions.size();
+        int duration = extractdurationOfTest(questions);
+        UserTest userTest = new UserTest();
+        userTest.setIdTest(idTest);
+        userTest.setIdUser(userId);
+        userTestRepository.save(userTest);
+
+        Test test = new Test();
+        test.setIdTest(idTest);
+        test.setNrOfObjectives(extractAllObjectivesId().length);
+        if (level.equalsIgnoreCase("BEGINNER") || level.equalsIgnoreCase("SOFTQUESTION")) {
+            test.setLevel(LevelTest.BEGINNER);
+        }
+        else if (level.equalsIgnoreCase("INTERMEDIATE") || level.equalsIgnoreCase("MIDLELEVELQUESTION")) {
+            test.setLevel(LevelTest.INTERMEDIATE);
+        }
+        else if (level.equalsIgnoreCase("HARD") || level.equalsIgnoreCase("HARDQUESTION")) {
+            test.setLevel(LevelTest.HARD);
+        }
+        test.setNrOfQuestions(nrOfQuestions);
+        test.setEstimatedDuration(duration);
+        testRepository.save(test);
+
+        for (Question q : questions) {
+            QuestionTest link = new QuestionTest();
+            link.setIdTest(idTest);
+            link.setIdQuestion(q.getQuestionId().getIdQuestion());
+            questionTestRepository.save(link);
+        }
+        return test;
+    }
+
+    //write the test of the single and more objectives
+    public Test writeTestSingleObjective(String userId, String level, int[] obj){
+        List<Question> questions = new ArrayList<>();
+        if(obj.length == 1) {
+            if (level.equals(LevelTest.BEGINNER.getDenumire()) || level.equals(LevelTest.INTERMEDIATE.getDenumire())) {
+                questions = generateTestBeginnerAndIntermediate(level, obj[0]);
+            } else if (level.equals(LevelTest.HARD.getDenumire())) {
+                questions = generateHardTest(obj[0]);
+            }
+        }else if(obj.length > 1){
+            if(level.equals(LevelTest.BEGINNER.getDenumire()) || level.equals(LevelTest.INTERMEDIATE.getDenumire())){
+                questions = generateTestBeginnerAndIntermediateMoreObj(level, obj);
+            } else if(level.equals(LevelTest.HARD.getDenumire())){
+                questions = generateHardTestMoreObj(obj);
+            }
+        }
+
+
+        String idTest = generateId(userId, questions);
+        int nrOfQuestions = questions.size();
+        int duration = extractdurationOfTest(questions);
+
+        UserTest userTest = new UserTest();
+        userTest.setIdTest(idTest);
+        userTest.setIdUser(userId);
+        userTestRepository.save(userTest);
+
+        Test test = new Test();
+        test.setIdTest(idTest);
+        test.setNrOfObjectives(obj.length);
+        if (level.equalsIgnoreCase("BEGINNER") || level.equalsIgnoreCase("SOFTQUESTION")) {
+            test.setLevel(LevelTest.BEGINNER);
+        }
+        else if (level.equalsIgnoreCase("INTERMEDIATE") || level.equalsIgnoreCase("MIDLELEVELQUESTION")) {
+            test.setLevel(LevelTest.INTERMEDIATE);
+        }
+        else if (level.equalsIgnoreCase("HARD") || level.equalsIgnoreCase("HARDQUESTION")) {
+            test.setLevel(LevelTest.HARD);
+        }
+        test.setNrOfQuestions(nrOfQuestions);
+        test.setEstimatedDuration(duration);
+        testRepository.save(test);
+
+        for (Question q : questions) {
+            QuestionTest link = new QuestionTest();
+            link.setIdTest(idTest);
+            link.setIdQuestion(q.getQuestionId().getIdQuestion());
+            questionTestRepository.save(link);
+        }
+        return test;
     }
 
 }
