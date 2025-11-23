@@ -1,11 +1,10 @@
 package com.example.testsapi.controller;
 
-import com.example.testsapi.entity.Objectiv;
-import com.example.testsapi.entity.Question;
-import com.example.testsapi.entity.Test;
+import com.example.testsapi.entity.*;
 import com.example.testsapi.repository.QuestionRepository;
 import com.example.testsapi.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,13 +57,14 @@ public class TestController {
     //http://localhost:8080/test/writeTest/U00033/MIDLELEVELQUESTION?objectives=8
     //http://localhost:8080/test/writeTest/U00033/HARD?objectives=8
     @GetMapping("/writeTest/{userId}/{level}")
-    public Test writeTest(
+    public TestOfQuestions writeTest(
             @PathVariable String userId,
             @PathVariable String level,
             @RequestParam(name = "objectives") List<Integer> objectives
     ) {
         int[] objArray = objectives.stream().mapToInt(Integer::intValue).toArray();
-        return testService.writeTestSingleObjective(userId, level, objArray);
+//        return testService.writeTestSingleObjective(userId, level, objArray);
+        return  testService.writeTestSingleObjective(userId, level, objArray);
     }
 
 
@@ -82,8 +82,8 @@ public class TestController {
     }
 
     @GetMapping("/generate/beginner/{objectiveId}")
-    public List<Question> generateBeginnerTest(@PathVariable String level, @PathVariable int idObjectiv) {
-        return testService.generateTestBeginnerAndIntermediate(level, idObjectiv);
+    public List<Question> generateBeginnerTest(@PathVariable int idObjectiv) {
+        return testService.generateTestBeginnerAndIntermediate(LevelTest.BEGINNER.getDenumire(), idObjectiv);
     }
     @GetMapping("/generate/intermediate/{objectiveId}")
     public List<Question> generateIntermediateTest(@PathVariable String level, @PathVariable int idObjectiv) {
@@ -161,4 +161,35 @@ public class TestController {
     public Test writeFinalTest(@PathVariable String userId, @PathVariable String level) {
         return testService.writingFinalTest(userId, level);
     }
+
+//    @PostMapping("/{level}/by-sub-objectives")
+//    public ResponseEntity<?> generateTestBySecondaryObjectivesUrl(
+//            @PathVariable String level,
+//            @RequestParam String userId,
+//            @RequestParam(name = "subObjIds") int[] subObjIds) { // Spring convertește automat "101,203,305" la int[]
+//
+//        try {
+//            // 1. Validare Nivel
+//            String normalizedLevel = level.toUpperCase();
+//            if (!normalizedLevel.equals("BEGINNER") && !normalizedLevel.equals("INTERMEDIATE")) {
+//                return new ResponseEntity<>("Nivelul specificat trebuie să fie 'BEGINNER' sau 'INTERMEDIATE'.", HttpStatus.BAD_REQUEST);
+//            }
+//
+//            if (subObjIds == null || subObjIds.length == 0) {
+//                return new ResponseEntity<>("Parametrul 'subObjIds' (obiective secundare) este obligatoriu.", HttpStatus.BAD_REQUEST);
+//            }
+//
+//            // 2. Apelarea metodei din Service
+//            Test generatedTest = testService.writeTestBySecondaryObjectives(userId, normalizedLevel, subObjIds);
+//
+//            return new ResponseEntity<>(generatedTest, HttpStatus.CREATED);
+//
+//        } catch (IllegalArgumentException e) {
+//            return new ResponseEntity<>("Eroare de logică: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+//        } catch (Exception e) {
+//            System.err.println("Eroare la generarea testului: " + e.getMessage());
+//            e.printStackTrace();
+//            return new ResponseEntity<>("A apărut o eroare internă la generarea testului.", HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

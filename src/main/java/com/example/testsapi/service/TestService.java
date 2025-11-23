@@ -882,9 +882,62 @@ public class TestService {
         return test;
     }
 
-    //write the test of the single and more objectives
-    public Test writeTestSingleObjective(String userId, String level, int[] obj){
+   // write the test of the single and more objectives
+//    public Test writeTestSingleObjective(String userId, String level, int[] obj){
+//        List<Question> questions = new ArrayList<>();
+//        System.err.println(obj.length);
+//        if(obj.length == 1) {
+//            if (level.equals(LevelTest.BEGINNER.getDenumire()) || level.equals(LevelTest.INTERMEDIATE.getDenumire())) {
+//                questions = generateTestBeginnerAndIntermediate(level, obj[0]);
+//            } else if (level.equals(LevelTest.HARD.getDenumire())) {
+//                questions = generateHardTest(obj[0]);
+//            }
+//        }else if(obj.length > 1){
+//            if(level.equals(LevelTest.BEGINNER.getDenumire()) || level.equals(LevelTest.INTERMEDIATE.getDenumire())){
+//                questions = generateTestBeginnerAndIntermediateMoreObj(level, obj);
+//            } else if(level.equals(LevelTest.HARD.getDenumire())){
+//                questions = generateHardTestMoreObj(obj);
+//            }
+//        }
+//        System.err.println(questions.size());
+//
+//        String idTest = generateId(userId, questions);
+//        int nrOfQuestions = questions.size();
+//        int duration = extractdurationOfTest(questions);
+//
+//        UserTest userTest = new UserTest();
+//        userTest.setIdTest(idTest);
+//        userTest.setIdUser(userId);
+//        userTestRepository.save(userTest);
+//
+//        Test test = new Test();
+//        test.setIdTest(idTest);
+//        test.setNrOfObjectives(obj.length);
+//        if (level.equalsIgnoreCase("BEGINNER") || level.equalsIgnoreCase("SOFTQUESTION")) {
+//            test.setLevel(LevelTest.BEGINNER);
+//        }
+//        else if (level.equalsIgnoreCase("INTERMEDIATE") || level.equalsIgnoreCase("MIDLELEVELQUESTION")) {
+//            test.setLevel(LevelTest.INTERMEDIATE);
+//        }
+//        else if (level.equalsIgnoreCase("HARD") || level.equalsIgnoreCase("HARDQUESTION")) {
+//            test.setLevel(LevelTest.HARD);
+//        }
+//        test.setNrOfQuestions(nrOfQuestions);
+//        test.setEstimatedDuration(duration);
+//        testRepository.save(test);
+//
+//        for (Question q : questions) {
+//            QuestionTest link = new QuestionTest();
+//            link.setIdTest(idTest);
+//            link.setIdQuestion(q.getQuestionId().getIdQuestion());
+//            questionTestRepository.save(link);
+//        }
+//        return test;
+//    }
+
+    public TestOfQuestions writeTestSingleObjective(String userId, String level, int[] obj){
         List<Question> questions = new ArrayList<>();
+        System.err.println(obj.length);
         if(obj.length == 1) {
             if (level.equals(LevelTest.BEGINNER.getDenumire()) || level.equals(LevelTest.INTERMEDIATE.getDenumire())) {
                 questions = generateTestBeginnerAndIntermediate(level, obj[0]);
@@ -898,7 +951,7 @@ public class TestService {
                 questions = generateHardTestMoreObj(obj);
             }
         }
-
+        System.err.println(questions.size());
 
         String idTest = generateId(userId, questions);
         int nrOfQuestions = questions.size();
@@ -931,7 +984,25 @@ public class TestService {
             link.setIdQuestion(q.getQuestionId().getIdQuestion());
             questionTestRepository.save(link);
         }
-        return test;
+
+        TestOfQuestions testOfQuestions = new TestOfQuestions(test, questions);
+        return testOfQuestions;
+    }
+
+    private List<List<Question>> selectQuestionsBySecondaryObjectives(String level, int[] subObjIds) {
+        List<List<Question>> questionsPerSubObjective = new ArrayList<>();
+        for (int subObjId : subObjIds) {
+
+            int mainObjId = subObjId / 100;
+            List<Question> questions = questionRepository.findByLevelAndObjectives(level, mainObjId, subObjId);
+            questionsPerSubObjective.add(questions);
+
+            System.out.println("Găsite " + questions.size() +
+                    " întrebări pentru subobiectivul " + subObjId +
+                    " (Obiectiv Principal: " + mainObjId + ")");
+        }
+
+        return questionsPerSubObjective;
     }
 
 }
