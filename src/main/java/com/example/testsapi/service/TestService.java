@@ -454,6 +454,8 @@ public class TestService {
         System.out.println("Nr total intrebari: " + numberQuestions);
 
 
+        System.out.println("Obiectiv test===================================================" + obj);
+        System.out.println("Level Test=====================================================" + level);
         List<List<Question>> extractperSubObjective = selectToGenerateBeginnerTest(level, obj);
 
         int sizeList = extractperSubObjective.size();
@@ -487,6 +489,8 @@ public class TestService {
 
         return test;
     }
+
+
 
     public  List<Question> generateHardTest(int obj) {
         Random random = new Random();
@@ -598,7 +602,7 @@ public class TestService {
         int numberQuestions = random.nextInt(70, 81);
         System.out.println("Nr total intrebari: " + numberQuestions);
 
-
+        System.out.println("Level Test=====================================================" + level);
         List<List<Question>> extractperSubObjective = selectToGenerateBeginnerIntermediateTestMoreObj(level, obj);
 
         int sizeList = extractperSubObjective.size();

@@ -38,6 +38,7 @@ public class TestController {
         return "Generated ID: " + id;
     }
 
+    //http://localhost:8080/test/principles-objectives?subObjectiveIds=92
     @GetMapping("/principles-objectives")
     public List<Objectiv> getPrinciplesObjectives(@RequestParam List<String> subObjectiveIds) {
         List<Objectiv> subObj = new ArrayList<>();
@@ -81,15 +82,18 @@ public class TestController {
         return testService.distanceToQuestion(q1, q2);
     }
 
+    //http://localhost:8080/test/intermediate/beginner/9
     @GetMapping("/generate/beginner/{objectiveId}")
-    public List<Question> generateBeginnerTest(@PathVariable int idObjectiv) {
-        return testService.generateTestBeginnerAndIntermediate(LevelTest.BEGINNER.getDenumire(), idObjectiv);
+    public List<Question> generateBeginnerTest(@PathVariable("objectiveId") int idObjectiv) {
+        return testService.generateTestBeginnerAndIntermediate("SOFTQUESTION", idObjectiv);
     }
+    //http://localhost:8080/test/generate/intermediate/9
     @GetMapping("/generate/intermediate/{objectiveId}")
-    public List<Question> generateIntermediateTest(@PathVariable String level, @PathVariable int idObjectiv) {
-        return testService.generateTestBeginnerAndIntermediate(level, idObjectiv);
+    public List<Question> generateIntermediateTest(@PathVariable("objectiveId") int idObjectiv) {
+        return testService.generateTestBeginnerAndIntermediate("MIDLELEVELQUESTION", idObjectiv);
     }
 
+    //http://localhost:8080/test/generate/hard/9
     @GetMapping("/generate/hard/{objectiveId}")
     public List<Question> generateHardTest(@PathVariable int objectiveId) {
         return testService.generateHardTest(objectiveId);
@@ -162,34 +166,6 @@ public class TestController {
         return testService.writingFinalTest(userId, level);
     }
 
-//    @PostMapping("/{level}/by-sub-objectives")
-//    public ResponseEntity<?> generateTestBySecondaryObjectivesUrl(
-//            @PathVariable String level,
-//            @RequestParam String userId,
-//            @RequestParam(name = "subObjIds") int[] subObjIds) { // Spring convertește automat "101,203,305" la int[]
-//
-//        try {
-//            // 1. Validare Nivel
-//            String normalizedLevel = level.toUpperCase();
-//            if (!normalizedLevel.equals("BEGINNER") && !normalizedLevel.equals("INTERMEDIATE")) {
-//                return new ResponseEntity<>("Nivelul specificat trebuie să fie 'BEGINNER' sau 'INTERMEDIATE'.", HttpStatus.BAD_REQUEST);
-//            }
-//
-//            if (subObjIds == null || subObjIds.length == 0) {
-//                return new ResponseEntity<>("Parametrul 'subObjIds' (obiective secundare) este obligatoriu.", HttpStatus.BAD_REQUEST);
-//            }
-//
-//            // 2. Apelarea metodei din Service
-//            Test generatedTest = testService.writeTestBySecondaryObjectives(userId, normalizedLevel, subObjIds);
-//
-//            return new ResponseEntity<>(generatedTest, HttpStatus.CREATED);
-//
-//        } catch (IllegalArgumentException e) {
-//            return new ResponseEntity<>("Eroare de logică: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-//        } catch (Exception e) {
-//            System.err.println("Eroare la generarea testului: " + e.getMessage());
-//            e.printStackTrace();
-//            return new ResponseEntity<>("A apărut o eroare internă la generarea testului.", HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+
+
 }
