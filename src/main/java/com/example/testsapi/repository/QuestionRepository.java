@@ -36,7 +36,6 @@ public interface QuestionRepository extends JpaRepository<Question, QuestionId> 
             @Param("level") String level,
             @Param("mainObjectiveId") int mainObjectiveId,
             @Param("secondaryObjectiveId") int secondaryObjectiveId);
-
 //    @Query(value = """
 //SELECT * FROM question q
 //WHERE q.level = :level

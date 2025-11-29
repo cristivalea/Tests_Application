@@ -64,6 +64,9 @@ public class TestController {
             @RequestParam(name = "objectives") List<Integer> objectives
     ) {
         int[] objArray = objectives.stream().mapToInt(Integer::intValue).toArray();
+        for(int i = 0; i < objArray.length; i++) {
+            System.err.println(objArray[i]);
+        }
 //        return testService.writeTestSingleObjective(userId, level, objArray);
         return  testService.writeTestSingleObjective(userId, level, objArray);
     }
@@ -162,10 +165,37 @@ public class TestController {
     //http://localhost:8080/test/writeFinalTest/U00031/MIDLELEVELQUESTION
     //http://localhost:8080/test/writeFinalTest/U00031/HARD
     @GetMapping("/writeFinalTest/{userId}/{level}")
-    public Test writeFinalTest(@PathVariable String userId, @PathVariable String level) {
+    public TestOfQuestions writeFinalTest(@PathVariable String userId, @PathVariable String level) {
         return testService.writingFinalTest(userId, level);
     }
 
+    //http://localhost:8080/extract_question_by_subObj?obj=91,92,93&level=MIDLELEVELQUESTION
+    @GetMapping("/extract_question_by_subObj")
+    public List<List<Question>> getQuestionBySubObj(@RequestParam(name = "obj") int[] obj, @RequestParam(name = "level") String level) {
+        return testService.searchQuestionsBySecondaryObjectivesAndLevel(obj, level);
+    }
 
+    /**
+     * Endpoint pentru generarea testului pe baza subobiectivelor și nivelului.
+     * URL-ul ar trebui să arate astfel:
+     * http://localhost:8080/test/writeTestWithSubObjectives?userId=U00033&level=SOFTQUESTION&subobjectives=91,92,93
+     */
+    @GetMapping("/writeTestWithSubObjectives")
+    public ResponseEntity<TestOfQuestions> writeTestWithSubObjectives(
+            @RequestParam String userId,  // ID-ul utilizatorului
+            @RequestParam String level,   // Nivelul întrebărilor ("SOFTQUESTION", "MIDLELEVELQUESTION", "HARD")
+            @RequestParam int[] subobjectives  // Lista de subobiective
+    ) {
+        try {
+            // Apelăm serviciul pentru a genera testul
+            TestOfQuestions testOfQuestions = testService.writeTestSingleAndMoreSubobjectives(userId, level, subobjectives);
 
+            // Returnăm testul generat în format JSON
+            return ResponseEntity.ok(testOfQuestions);
+        } catch (Exception e) {
+            // În cazul în care există o eroare, returnăm un status de eroare
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
