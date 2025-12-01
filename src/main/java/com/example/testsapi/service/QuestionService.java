@@ -31,13 +31,25 @@ public class QuestionService {
     private TimeLengthQuestionRepository timeLengthQuestionRepository;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private ResponseRepository responseRepository;
+    @Autowired
+    private ResponsesRepository responsesRepository;
 
     public Question saveQuestion(String json) throws Exception {
 
         JsonNode root = objectMapper.readTree(json);
         String idQuestion = root.get("id").asText();
         String level = root.get("type").asText();
+        String score = root.get("partialScore").asText();
+        String domain = root.get("domain").asText();
 
+        int partialScore  = 0;
+        if(score.equals("true")){
+            partialScore = 1;
+        } else if(score.equals("false")){
+            partialScore = 0;
+        }
 
         Integer nextId = (int) (questionRepository.count() + 1);
 
@@ -45,8 +57,100 @@ public class QuestionService {
         question.setQuestionId(new QuestionId(nextId, idQuestion));
         question.setQuestion(json);
         question.setLevel(level);
+        question.setScore(partialScore);
+        question.setDomain(domain);
+        questionRepository.save(question);
 
-        return questionRepository.save(question);
+        //add in main_objectivs table
+        JsonNode mainObjectivesNode = root.get("mainObjectives");
+
+        if (mainObjectivesNode != null && mainObjectivesNode.isArray()) {
+
+            for (JsonNode obj : mainObjectivesNode) {
+
+                Integer idObj = obj.get("id").asInt();
+                String nameObj = obj.get("name").asText();
+
+                MainObjective mo = new MainObjective();
+                mo.setIdQuestion(idQuestion);
+                mo.setIdObjectiv(idObj);
+                mo.setNameObjectiv(nameObj);
+
+                mainObjectiveRepository.save(mo);
+            }
+        }
+
+        //add secondary objectives table
+        JsonNode secondaryObjectivesNode = root.get("secondaryObjectives");
+
+        if (secondaryObjectivesNode != null && secondaryObjectivesNode.isArray()) {
+
+            for (JsonNode obj : secondaryObjectivesNode) {
+
+                Integer idObj = obj.get("id").asInt();
+                String nameObj = obj.get("name").asText();
+
+                SecondaryObjective so = new SecondaryObjective();
+                so.setIdQuestion(idQuestion);
+                so.setIdObjectiv(idObj);
+                so.setNameObjectiv(nameObj);
+
+                secondaryObjectiveRepository.save(so);
+            }
+        }
+
+        //time lenght
+        TimeLengthQuestion timeLengthQuestion = new TimeLengthQuestion();
+        Integer time = null;
+        if(level.equals("SOFTQUESTION")){
+            time = 60;
+        } else if(level.equals("MIDLELEVELQUESTION")){
+            time = 100;
+        } else if(level.equals("HARD")){
+            time = 150;
+        }
+        timeLengthQuestion.setIdQuestion(idQuestion);
+        timeLengthQuestion.setTimeLength(time);
+        timeLengthQuestionRepository.save(timeLengthQuestion);
+
+        JsonNode responsesNode = root.get("responses");
+        JsonNode answersNode = root.get("answers");
+
+        List<Integer> correctAnswersIndexes = new ArrayList<>();
+
+        // adăugăm toate răspunsurile corecte
+        if (answersNode != null && answersNode.isArray()) {
+            for (int j = 0; j < answersNode.size(); j++) {
+                if (answersNode.get(j).get("answer").asBoolean()) {
+                    correctAnswersIndexes.add(j);  // păstrăm indexul răspunsurilor corecte
+                }
+            }
+        }
+
+        // Salvezi răspunsurile
+        for (int i = 0; i < responsesNode.size(); i++) {
+            String responseText = responsesNode.get(i).get("respoonse").asText();
+            int isCorrect = correctAnswersIndexes.contains(i) ? 1 : 0;
+
+            // Salvezi în tabela RESPONSE
+            Response response = new Response();
+            response.setContent(responseText);
+            response.setSelectedType("TEXT");
+            response.setResponseValue(isCorrect);
+
+            Response saved = responseRepository.save(response);
+
+            // Salvezi legătura între întrebare și răspuns în tabela RESPONSES
+            Responses link = new Responses();
+            link.setIdQuestion(idQuestion);
+            link.setIdResponse(saved.getId());
+
+            responsesRepository.save(link);
+        }
+
+
+
+        return null;
     }
 
 

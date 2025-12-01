@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class SecondaryObjective {
     @Id
     @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "idQuestion", nullable = false, length = 100)
