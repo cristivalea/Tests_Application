@@ -1243,8 +1243,10 @@ public class TestService {
             questions = generateTestBeginnerAndIntermediateMoreSubobjectives(subobjectives, "SOFTQUESTION");
         } else if(level.equals("MIDLELEVELQUESTION")) {
             questions = generateTestBeginnerAndIntermediateMoreSubobjectives(subobjectives, "MIDLELEVELQUESTION");
-        } else if (level.equals(LevelTest.HARD.getDenumire())) {
-            questions = generateHardTestMoreSubobjectives(subobjectives);
+        } else if (level.equals("HARDQUESTION")) {
+            System.out.println("\n================================Ramura de teste hard========================================\n");
+//            questions = generateHardTestMoreSubobjectives(subobjectives);
+            questions = generateTestBeginnerAndIntermediateMoreSubobjectives(subobjectives, "HARDQUESTION");
         }
         System.err.println("Question size: " + questions.size());
 

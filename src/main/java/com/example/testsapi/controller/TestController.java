@@ -184,7 +184,7 @@ public class TestController {
     @GetMapping("/writeTestWithSubObjectives")
     public ResponseEntity<TestOfQuestions> writeTestWithSubObjectives(
             @RequestParam String userId,  // ID-ul utilizatorului
-            @RequestParam String level,   // Nivelul întrebărilor ("SOFTQUESTION", "MIDLELEVELQUESTION", "HARD")
+            @RequestParam String level,   // Nivelul întrebărilor ("SOFTQUESTION", "MIDLELEVELQUESTION", "HARDQUESTION")
             @RequestParam int[] subobjectives  // Lista de subobiective
     ) {
         try {
