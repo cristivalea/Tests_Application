@@ -22,6 +22,6 @@ public class Responses {
     @Column(name = "IdQuestion", nullable = false, length = 100)
     private String idQuestion;
 
-    @Column(name = "idResponse", nullable = false, unique = true)
+    @Column(name = "idResponse", nullable = false)
     private Integer idResponse;
 }

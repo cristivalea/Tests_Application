@@ -35,6 +35,10 @@ public class QuestionService {
     private ResponseRepository responseRepository;
     @Autowired
     private ResponsesRepository responsesRepository;
+    @Autowired
+    private SourceCodeRepository sourceCodeRepository;
+    @Autowired
+    private QuestionCodeLinkRepository questionCodeLinkRepository;
 
     public Question saveQuestion(String json) throws Exception {
 
@@ -106,7 +110,7 @@ public class QuestionService {
             time = 60;
         } else if(level.equals("MIDLELEVELQUESTION")){
             time = 100;
-        } else if(level.equals("HARD")){
+        } else if(level.equals("HARDQUESTION")){
             time = 150;
         }
         timeLengthQuestion.setIdQuestion(idQuestion);
@@ -122,7 +126,7 @@ public class QuestionService {
         if (answersNode != null && answersNode.isArray()) {
             for (int j = 0; j < answersNode.size(); j++) {
                 if (answersNode.get(j).get("answer").asBoolean()) {
-                    correctAnswersIndexes.add(j);  // păstrăm indexul răspunsurilor corecte
+                    correctAnswersIndexes.add(j);
                 }
             }
         }
@@ -134,8 +138,13 @@ public class QuestionService {
 
             // Salvezi în tabela RESPONSE
             Response response = new Response();
+            if(correctAnswersIndexes.size() == 1){
+                response.setType("single_choice");
+            } else if(correctAnswersIndexes.size() > 1){
+                response.setType("multiple_choice");
+            }
             response.setContent(responseText);
-            response.setSelectedType("TEXT");
+            response.setSelectedType("text");
             response.setResponseValue(isCorrect);
 
             Response saved = responseRepository.save(response);
@@ -148,6 +157,30 @@ public class QuestionService {
             responsesRepository.save(link);
         }
 
+        JsonNode contentNode = root.get("content");
+
+        if (contentNode != null) {
+            JsonNode codeNode = contentNode.get("sourceCode");
+
+            if (codeNode != null && !codeNode.isNull()) {
+                System.err.println(codeNode.asText());
+
+                SourceCode sourceCode = new SourceCode();
+                sourceCode.setProgrammingLanguage("Java");
+                sourceCode.setDescription("Code for indexing books using StringBuilder");
+                sourceCode.setContent(codeNode.asText());
+                sourceCode.setFileName("Indexing.java");
+
+                sourceCodeRepository.save(sourceCode);
+
+                QuestionCodeLink codeLink = new QuestionCodeLink();
+                codeLink.setExternalId(idQuestion);
+                codeLink.setSourceCodeId(sourceCode.getIdSourceCode());
+                codeLink.setType("source_code");
+
+                questionCodeLinkRepository.save(codeLink);
+            }
+        }
 
 
         return null;

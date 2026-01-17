@@ -1,6 +1,7 @@
 package com.example.testsapi.repository;
 
 
+import com.example.testsapi.entity.Dificulty;
 import com.example.testsapi.entity.Question;
 import com.example.testsapi.entity.QuestionId;
 import com.example.testsapi.entity.TimeLengthQuestion;
@@ -46,7 +47,15 @@ public interface QuestionRepository extends JpaRepository<Question, QuestionId> 
 //            @Param("level") String level,
 //            @Param("mainObjectiveId") String mainObjectiveId,   // STRING!
 //            @Param("secondaryObjectiveId") String secondaryObjectiveId); // STRING!
-
-
+@Query("""
+SELECT q FROM Question q
+JOIN SecondaryObjective so ON so.idQuestion = q.questionId.idQuestion
+WHERE so.idObjectiv = :subId
+AND q.level = :level
+""")
+List<Question> findBySecondaryObjectiveAndLevel(
+        @Param("subId") int subId,
+        @Param("level") String level
+);
 
 }

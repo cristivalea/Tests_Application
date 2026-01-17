@@ -2,6 +2,7 @@ package com.example.testsapi.repository;
 
 
 
+import com.example.testsapi.entity.Dificulty;
 import com.example.testsapi.entity.Question;
 import com.example.testsapi.entity.SecondaryObjective;
 
@@ -19,9 +20,11 @@ public interface SecondaryObjectiveRepository extends JpaRepository<SecondaryObj
     Integer findMaxId();
     List<SecondaryObjective> findByIdObjectiv(Integer idObjectiv);
     List<SecondaryObjective> findByIdQuestion(String idQuestion);
-    @Query("SELECT q FROM Question q " +
-            "JOIN SecondaryObjective s ON s.idQuestion = q.questionId.idQuestion " +
-            "WHERE s.idObjectiv = :idObjectiv AND q.level = :level")
-    List<Question> findQuestionsBySecondaryObjectiveAndLevel(@Param("idObjectiv") Integer idObjectiv,@Param("level") String level);
+//    @Query("SELECT q FROM Question q " +
+//            "JOIN SecondaryObjective s ON s.idQuestion = q.questionId.idQuestion " +
+//            "WHERE s.idObjectiv = :idObjectiv AND q.level = :level")
+//    List<Question> findQuestionsBySecondaryObjectiveAndLevel(@Param("idObjectiv") Integer idObjectiv,@Param("level") String level);
+
+
 
 }

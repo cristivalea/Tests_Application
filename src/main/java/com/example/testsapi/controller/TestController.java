@@ -170,16 +170,17 @@ public class TestController {
     }
 
     //http://localhost:8080/extract_question_by_subObj?obj=91,92,93&level=MIDLELEVELQUESTION
-    @GetMapping("/extract_question_by_subObj")
-    public List<List<Question>> getQuestionBySubObj(@RequestParam(name = "obj") int[] obj, @RequestParam(name = "level") String level) {
-        return testService.searchQuestionsBySecondaryObjectivesAndLevel(obj, level);
-    }
+//    @GetMapping("/extract_question_by_subObj")
+//    public List<List<Question>> getQuestionBySubObj(@RequestParam(name = "obj") int[] obj, @RequestParam(name = "level") String level) {
+//        return testService.searchQuestionsBySecondaryObjectivesAndLevel(obj, level);
+//    }
 
     /**
      * Endpoint pentru generarea testului pe baza subobiectivelor și nivelului.
      * URL-ul ar trebui să arate astfel:
-     * http://localhost:8080/test/writeTestWithSubObjectives?userId=U00033&level=SOFTQUESTION&subobjectives=91,92,93
+     *
      */
+    //http://localhost:8080/test/writeTestWithSubObjectives?userId=U00033&level=SOFTQUESTION&subobjectives=91,92,93
     @GetMapping("/writeTestWithSubObjectives")
     public ResponseEntity<TestOfQuestions> writeTestWithSubObjectives(
             @RequestParam String userId,  // ID-ul utilizatorului
