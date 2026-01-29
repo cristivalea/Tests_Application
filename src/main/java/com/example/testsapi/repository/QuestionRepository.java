@@ -58,4 +58,5 @@ List<Question> findBySecondaryObjectiveAndLevel(
         @Param("level") String level
 );
 
+    boolean existsByQuestionId_IdQuestion(String idQuestion);
 }

@@ -39,6 +39,8 @@ public class QuestionService {
     private SourceCodeRepository sourceCodeRepository;
     @Autowired
     private QuestionCodeLinkRepository questionCodeLinkRepository;
+    @Autowired
+    private QuestionImageRepository questionImageRepository;
 
     public Question saveQuestion(String json) throws Exception {
 
@@ -157,10 +159,10 @@ public class QuestionService {
             responsesRepository.save(link);
         }
 
-        JsonNode contentNode = root.get("content");
+        JsonNode contentNode = root.get("Content");
 
         if (contentNode != null) {
-            JsonNode codeNode = contentNode.get("sourceCode");
+            JsonNode codeNode = contentNode.get("code");
 
             if (codeNode != null && !codeNode.isNull()) {
                 System.err.println(codeNode.asText());
@@ -179,6 +181,22 @@ public class QuestionService {
                 codeLink.setType("source_code");
 
                 questionCodeLinkRepository.save(codeLink);
+            }
+        }
+
+        //adaugam imagine in tabela
+        JsonNode contentNodeImg = root.get("Content");
+
+        if (contentNodeImg != null && contentNodeImg.isObject()) {
+            JsonNode imgNode = contentNodeImg.get("img");
+
+            if (imgNode != null && !imgNode.isNull() && !imgNode.asText().isBlank()) {
+
+                QuestionImage questionImage = new QuestionImage();
+                questionImage.setIdQuestion(idQuestion);
+                questionImage.setImagePath(imgNode.asText());
+
+                questionImageRepository.save(questionImage);
             }
         }
 
