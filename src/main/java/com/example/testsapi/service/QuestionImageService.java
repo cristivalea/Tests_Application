@@ -7,13 +7,17 @@ import com.example.testsapi.repository.QuestionImageRepository;
 import com.example.testsapi.repository.QuestionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import java.net.MalformedURLException;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,6 +33,7 @@ public class QuestionImageService {
     private QuestionImageRepository questionImageRepository;
     @Autowired
     private QuestionRepository questionRepository;
+    private final String ROOT_PATH = "D:/LICENTA/TestsSecureApiApplication/uploads/";
 
     public QuestionImageService(QuestionImageRepository questionImageRepository, QuestionRepository questionRepository) {
         this.questionImageRepository = questionImageRepository;
@@ -113,5 +118,34 @@ public class QuestionImageService {
                 .toList();
     }
 
+// În interiorul clasei QuestionImageService:
 
+    public Resource loadImageAsResource(String questionId, String fileName) {
+        try {
+            // Deoarece în DB ai deja "/images/questions/...", trebuie să extragem DOAR numele fișierului
+            // sau să ajustăm cum folosim path-ul.
+
+            // Varianta cea mai sigură: extragem doar numele fișierului din ce vine de la client/Node
+            Path pathObj = Paths.get(fileName);
+            String pureFileName = pathObj.getFileName().toString();
+
+            Path filePath = Paths.get(ROOT_PATH)
+                    .resolve("images")
+                    .resolve("questions")
+                    .resolve(questionId)
+                    .resolve(pureFileName)
+                    .normalize();
+
+            System.out.println("DEBUG: Java caută la: " + filePath.toAbsolutePath());
+
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists() && resource.isReadable()) {
+                return resource;
+            } else {
+                throw new RuntimeException("Fișierul nu există fizic pe disc la: " + filePath);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare: " + e.getMessage());
+        }
+    }
 }

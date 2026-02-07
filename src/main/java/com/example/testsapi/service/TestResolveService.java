@@ -5,9 +5,11 @@ import com.example.testsapi.dto.TestResolveResultDTO;
 import com.example.testsapi.entity.Response;
 import com.example.testsapi.entity.Responses;
 import com.example.testsapi.entity.TestResolve;
+import com.example.testsapi.entity.TestResults;
 import com.example.testsapi.repository.ResponseRepository;
 import com.example.testsapi.repository.ResponsesRepository;
 import com.example.testsapi.repository.TestResolveRepository;
+import com.example.testsapi.repository.TestResultsRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -98,13 +100,16 @@ public class TestResolveService {
     private final ResponsesRepository responsesRepository;
     private final ResponseRepository responseRepository;
     private final TestResolveRepository rezolvareTestRepository;
+    private TestResultsRepository testResultsRepository;
 
     public TestResolveService(ResponsesRepository responsesRepository,
                               ResponseRepository responseRepository,
-                              TestResolveRepository rezolvareTestRepository) {
+                              TestResolveRepository rezolvareTestRepository,
+                              TestResultsRepository testResultsRepository) {
         this.responsesRepository = responsesRepository;
         this.responseRepository = responseRepository;
         this.rezolvareTestRepository = rezolvareTestRepository;
+        this.testResultsRepository = testResultsRepository;
     }
 
     public TestResolveResultDTO evaluateTest(List<TestResolveItemDTO> items) {
@@ -131,10 +136,13 @@ public class TestResolveService {
             rezolvareTestRepository.save(rez);
         }
 
+        double percentage = correct * 100.0 / items.size();
+
+        this.testResultsRepository.save(new TestResults(0, items.get(0).getIdUser(), items.get(0).getIdTest(), percentage));
         return new TestResolveResultDTO(
                 items.size(),
                 correct,
-                correct * 100.0 / items.size()
+                percentage
         );
     }
 

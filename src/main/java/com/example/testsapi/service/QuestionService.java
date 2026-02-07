@@ -184,21 +184,21 @@ public class QuestionService {
             }
         }
 
-        //adaugam imagine in tabela
-        JsonNode contentNodeImg = root.get("Content");
-
-        if (contentNodeImg != null && contentNodeImg.isObject()) {
-            JsonNode imgNode = contentNodeImg.get("img");
-
-            if (imgNode != null && !imgNode.isNull() && !imgNode.asText().isBlank()) {
-
-                QuestionImage questionImage = new QuestionImage();
-                questionImage.setIdQuestion(idQuestion);
-                questionImage.setImagePath(imgNode.asText());
-
-                questionImageRepository.save(questionImage);
-            }
-        }
+//        //adaugam imagine in tabela
+//        JsonNode contentNodeImg = root.get("Content");
+//
+//        if (contentNodeImg != null && contentNodeImg.isObject()) {
+//            JsonNode imgNode = contentNodeImg.get("img");
+//
+//            if (imgNode != null && !imgNode.isNull() && !imgNode.asText().isBlank()) {
+//
+//                QuestionImage questionImage = new QuestionImage();
+//                questionImage.setIdQuestion(idQuestion);
+//                questionImage.setImagePath(imgNode.asText());
+//
+//                questionImageRepository.save(questionImage);
+//            }
+//        }
 
 
         return null;

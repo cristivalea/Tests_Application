@@ -18,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/question_image")
+@CrossOrigin(origins = "http://localhost:3001")
 public class QuestionImageController {
 
     @Autowired
@@ -38,25 +39,40 @@ public class QuestionImageController {
         return questionImageService.getAllImages();
     }
 
+//
+//    @GetMapping("/images/questions/{id}/{filename}")
+//    public ResponseEntity<Resource> getImage(
+//            @PathVariable String id,
+//            @PathVariable String filename
+//    ) {
+//        Path path = Paths.get("D:/LICENTA/TestsSecureApiApplication/uploads/images/questions/" + id + "/" + filename);
+//        if (!Files.exists(path)) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        Resource resource = new FileSystemResource(path);
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.IMAGE_PNG);
+//        return ResponseEntity.ok()
+//                .headers(headers)
+//                .body(resource);
+//    }
 
-    @GetMapping("/images/questions/{id}/{filename}")
+    @GetMapping("/images/questions/{id}/{filename:.+}")
     public ResponseEntity<Resource> getImage(
             @PathVariable String id,
-            @PathVariable String filename
-    ) {
-        Path path = Paths.get("D:/LICENTA/TestsSecureApiApplication/uploads/images/questions/" + id + "/" + filename);
-        if (!Files.exists(path)) {
-            return ResponseEntity.notFound().build();
-        }
+            @PathVariable String filename) {
 
-        Resource resource = new FileSystemResource(path);
+        // 1. Apelăm serviciul pentru a încărca resursa
+        Resource resource = questionImageService.loadImageAsResource(id, filename);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_PNG);
+        // 2. Determinăm tipul de conținut (PNG, JPG, etc.)
+        String contentType = "image/png"; // Default sau poți folosi probeContentType
+
         return ResponseEntity.ok()
-                .headers(headers)
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
-
-
 }
