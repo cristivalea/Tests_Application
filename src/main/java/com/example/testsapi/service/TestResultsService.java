@@ -5,6 +5,8 @@ import com.example.testsapi.repository.TestResultsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TestResultsService {
 
@@ -20,6 +22,10 @@ public class TestResultsService {
             System.err.println("The result is null!");
         }
         return this.testResultsRepository.save(testResults);
+    }
+
+    public List<TestResults> findByUserIdOrderByIdAsc(String idUser) {
+        return testResultsRepository.findByIdUserOrderByIdAsc(idUser);
     }
 }
 

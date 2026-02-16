@@ -1,8 +1,13 @@
 package com.example.testsapi.repository;
 
 import com.example.testsapi.entity.TestResults;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
 
-public interface TestResultsRepository extends JpaRepository<TestResults, CriteriaBuilder.In> {
+@Repository
+public interface TestResultsRepository extends JpaRepository<TestResults, Integer> {
+
+    // Corectat: IdUser (cu I mare) corespunde variabilei idUser din Entity
+    List<TestResults> findByIdUserOrderByIdAsc(String idUser);
 }
