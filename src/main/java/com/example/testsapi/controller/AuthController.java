@@ -8,11 +8,14 @@ import com.example.testsapi.entity.Role;
 import com.example.testsapi.entity.Status;
 import com.example.testsapi.entity.User;
 import com.example.testsapi.entity.Email;
+import com.example.testsapi.repository.SessionRepository;
 import com.example.testsapi.repository.UserRepository;
 import com.example.testsapi.repository.EmailRepository;
+import com.example.testsapi.service.AuthService;
 import com.example.testsapi.service.EmailService;
 import com.example.testsapi.service.JwtUtils;
 import com.example.testsapi.service.UserIdGeneratorService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +48,9 @@ public class AuthController {
 
     UserIdGeneratorService userIdGeneratorService;
     private EmailService emailService;
+    @Autowired
+    private AuthService authService;
+
 
     public AuthController(AuthenticationManager authManage, UserRepository userRepo,  EmailRepository emailRepo, PasswordEncoder encoder, JwtUtils jwtUtils, UserIdGeneratorService userIdGen, EmailService emailService){
         this.authenticationManager = authManage;
@@ -225,9 +232,11 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logoutUser() {
-        return ResponseEntity.ok(new MessageResponse("Logged Out"));
+    public ResponseEntity<?> performLogout(@RequestHeader("Authorization") String token) {
+        authService.logout(token);
+        return ResponseEntity.ok("Delogat cu succes");
     }
+
 
     @GetMapping("/returnJWT")
     public ResponseEntity<?> testJwt() {

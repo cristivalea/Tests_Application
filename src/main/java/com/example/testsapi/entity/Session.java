@@ -18,7 +18,7 @@ public class Session {
     private Integer idSourceCode;
 
     @Column(name = "token", nullable = false, unique = true)
-    private String toke;
+    private String token;
 
     @Column(name = "userId", nullable = false)
     private String userId;

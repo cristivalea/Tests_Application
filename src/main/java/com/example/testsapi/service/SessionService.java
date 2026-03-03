@@ -15,10 +15,9 @@ public class SessionService {
         this.sessionRepository = sessionRepository;
     }
 
-
     public Session saveSession(String token, String userId, int minutesValid) {
         Session session = new Session();
-        session.setToke(token);
+        session.setToken(token);
         session.setUserId(userId);
         session.setStartSession(LocalDateTime.now());
         session.setEndSession(LocalDateTime.now().plusMinutes(minutesValid));
@@ -27,15 +26,16 @@ public class SessionService {
     }
 
     public boolean isValid(String token) {
-        Session session = sessionRepository.findByToke(token);
-        return session != null && session.getEndSession().isAfter(LocalDateTime.now());
+        // findByToken returnează Optional<Session>, deci folosim .map()
+        return sessionRepository.findByToken(token)
+                .map(session -> session.getEndSession().isAfter(LocalDateTime.now()))
+                .orElse(false); // Dacă nu găsește sesiunea, returnează false
     }
 
     public void deleteSession(String token) {
-        Session session = sessionRepository.findByToke(token);
-        if (session != null) {
+        // Căutăm sesiunea și, dacă există, o ștergem
+        sessionRepository.findByToken(token).ifPresent(session -> {
             sessionRepository.delete(session);
-        }
+        });
     }
-
 }
