@@ -1,9 +1,15 @@
 package com.example.testsapi.controller;
 
+import com.example.testsapi.entity.ObjectiveAnalysis;
+import com.example.testsapi.entity.TestDuration;
 import com.example.testsapi.entity.TestResults;
+import com.example.testsapi.repository.TestDurationRepository;
+import com.example.testsapi.repository.TestResultsRepository;
 import com.example.testsapi.service.BTKService;
+import com.example.testsapi.service.EvaluationService;
 import com.example.testsapi.service.TestResultsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +27,11 @@ public class StatisticallyController {
     private TestResultsService testResultsService;
     @Autowired
     private BTKService bktService;
+    @Autowired private EvaluationService evalService;
+    @Autowired private TestResultsRepository resRepo;
+    @Autowired private TestDurationRepository durRepo;
+
+
 
     public StatisticallyController(TestResultsService testResultsService, BTKService bktService) {
         this.testResultsService = testResultsService;
@@ -30,15 +41,21 @@ public class StatisticallyController {
     @GetMapping("/analysis/{idUser}")
     public Map<String, Object> analyzeUser(@PathVariable String idUser) {
         List<TestResults> results = testResultsService.findByUserIdOrderByIdAsc(idUser);
-        Map<String, Double> masteryMap = new HashMap<>(); // Stochează Masteria pentru OB1, OB2 etc.
+        Map<String, Double> masteryMap = new HashMap<>();
 
         for (TestResults res : results) {
-            String obj = extractObjectives(res.getIdTest()); // Folosim metoda ta de extragere
-            double currentP = masteryMap.getOrDefault(obj, 0.5); // Începem de la 50% certitudine
+            String fullObjString = extractObjectives(res.getIdTest());
 
-            // Dacă punctajul > 50, considerăm răspunsul "corect" pentru algoritm
-            boolean isCorrect = res.getPunctaj() > 50;
-            masteryMap.put(obj, bktService.calculateNewMastery(currentP, isCorrect));
+            String[] individualObjectives = fullObjString.split(", ");
+
+            for (String singleObj : individualObjectives) {
+                if (singleObj.equals("Nespecificat")) continue;
+
+                double currentP = masteryMap.getOrDefault(singleObj, 0.5);
+                boolean isCorrect = res.getPunctaj() > 50;
+
+                masteryMap.put(singleObj, bktService.calculateNewMastery(currentP, isCorrect));
+            }
         }
 
         Map<String, Object> response = new HashMap<>();
@@ -48,26 +65,21 @@ public class StatisticallyController {
     }
 
     private String extractObjectives(String idTest) {
-        if (idTest == null || idTest.length() <= 9) { // 6 (user) + 3 (id) = 9 caractere minim
+        if (idTest == null || idTest.length() <= 9) {
             return "Nespecificat";
         }
 
-        // 1. Tăiem primele 6 și ultimele 3 caractere
-        // Exemplu: "U00033_1_2_3_573" -> "_1_2_3_"
         String middlePart = idTest.substring(6, idTest.length() - 3);
 
-        // 2. Curățăm underscore-urile de la începutul și sfârșitul bucății rămase
-        // "_1_2_3_" -> "1_2_3"
         if (middlePart.startsWith("_")) middlePart = middlePart.substring(1);
         if (middlePart.endsWith("_")) middlePart = middlePart.substring(0, middlePart.length() - 1);
 
-        // 3. Facem split pe underscore pentru a izola fiecare obiectiv
         String[] parts = middlePart.split("_");
 
         List<String> objectives = new ArrayList<>();
         for (String part : parts) {
             if (!part.isEmpty()) {
-                objectives.add("OB" + part); // Transformă "1" în "OB1"
+                objectives.add("OB" + part);
             }
         }
 
@@ -106,7 +118,7 @@ public class StatisticallyController {
         } else if (minMastery < 0.7) {
             advice.append("💡 Obiectivul **").append(weakestObjective)
                     .append("** necesită mai multă practică pentru a fi stăpânit complet.");
-        } else {
+        } else if (minMastery >= 0.7){
             advice.append("🌟 Te descurci excelent! Stăpânești bine toate obiectivele analizate.");
         }
 
@@ -115,6 +127,41 @@ public class StatisticallyController {
         }
 
         return advice.toString();
+    }
+
+    @GetMapping("/personal-report/{userId}")
+    public ResponseEntity<List<ObjectiveAnalysis>> getReport(@PathVariable String userId) {
+        try {
+            List<TestResults> results = resRepo.findAll();
+            List<TestDuration> durations = durRepo.findAll();
+
+            List<ObjectiveAnalysis> report = evalService.computeDetailedCluster(userId, results, durations);
+            return ResponseEntity.ok(report);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @GetMapping("/general/{userId}")
+    public ResponseEntity<?> getGeneralAnalysis(@PathVariable String userId) {
+        try {
+            // 1. Preluăm toate datele necesare din baza de date pentru clustering
+            List<TestResults> allResults = resRepo.findAll();
+            List<TestDuration> allDurations = durRepo.findAll();
+
+            // 2. Apelăm serviciul pentru a calcula clusterul
+            ObjectiveAnalysis analysis = evalService.computeGeneralCluster(userId, allResults, allDurations);
+
+            if (analysis == null) {
+                return ResponseEntity.status(404).body("Nu s-au găsit date pentru utilizatorul: " + userId);
+            }
+
+            return ResponseEntity.ok(analysis);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Eroare la calcularea analizei: " + e.getMessage());
+        }
     }
 
 }
