@@ -425,35 +425,30 @@ public class TestService {
         boolean sameMain = !Collections.disjoint(mainIds1, mainIds2);
         boolean sameSec = !Collections.disjoint(secIds1, secIds2);
 
-        // același obiectiv, dar fără subobiective comune
+
         if (sameMain && !sameSec) {
             distance += 0.1;
         }
 
-        // același obiectiv și subobiective comune, dar nivel diferit
         if (sameMain && sameSec && !Objects.equals(q1.getLevel(), q2.getLevel())) {
             Set<String> commonSec = new HashSet<>(secIds1);
             commonSec.retainAll(secIds2);
             distance += 0.1 * commonSec.size();
         }
 
-        // Etichete (labels)
         Set<String> labels1 = extractLabelsForQuestion(q1);
         Set<String> labels2 = extractLabelsForQuestion(q2);
         Set<String> commonLabels = new HashSet<>(labels1);
         commonLabels.retainAll(labels2);
 
-        //  Aceleași obiective, subobiective și labeluri + același nivel
         if (sameMain && sameSec && Objects.equals(q1.getLevel(), q2.getLevel())) {
             distance += 0.1 * commonLabels.size();
         }
 
-        //  Același nivel de dificultate
         if (Objects.equals(q1.getLevel(), q2.getLevel())) {
             distance += 0.2;
         }
 
-        //  Aceeași interfață grafică
         String gui1 = extractGuiInterface(q1);
         String gui2 = extractGuiInterface(q2);
         if (Objects.equals(gui1, gui2)) {

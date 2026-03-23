@@ -59,4 +59,11 @@ List<Question> findBySecondaryObjectiveAndLevel(
 );
 
     boolean existsByQuestionId_IdQuestion(String idQuestion);
+    @Query("""
+    SELECT COUNT(q) 
+    FROM Question q 
+    JOIN QuestionTest qt ON q.questionId.idQuestion = qt.idQuestion 
+    WHERE qt.idTest = :testId AND q.score = 1
+""")
+    int countGradedQuestionsByTestId(@Param("testId") String testId);
 }

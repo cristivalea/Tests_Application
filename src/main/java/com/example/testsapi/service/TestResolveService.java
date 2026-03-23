@@ -2,14 +2,8 @@ package com.example.testsapi.service;
 
 import com.example.testsapi.dto.TestResolveItemDTO;
 import com.example.testsapi.dto.TestResolveResultDTO;
-import com.example.testsapi.entity.Response;
-import com.example.testsapi.entity.Responses;
-import com.example.testsapi.entity.TestResolve;
-import com.example.testsapi.entity.TestResults;
-import com.example.testsapi.repository.ResponseRepository;
-import com.example.testsapi.repository.ResponsesRepository;
-import com.example.testsapi.repository.TestResolveRepository;
-import com.example.testsapi.repository.TestResultsRepository;
+import com.example.testsapi.entity.*;
+import com.example.testsapi.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -101,47 +95,103 @@ public class TestResolveService {
     private final ResponseRepository responseRepository;
     private final TestResolveRepository rezolvareTestRepository;
     private TestResultsRepository testResultsRepository;
+    private QuestionRepository questionRepository;
 
     public TestResolveService(ResponsesRepository responsesRepository,
                               ResponseRepository responseRepository,
                               TestResolveRepository rezolvareTestRepository,
-                              TestResultsRepository testResultsRepository) {
+                              TestResultsRepository testResultsRepository,
+                              QuestionRepository questionRepository) {
         this.responsesRepository = responsesRepository;
         this.responseRepository = responseRepository;
         this.rezolvareTestRepository = rezolvareTestRepository;
         this.testResultsRepository = testResultsRepository;
+        this.questionRepository = questionRepository;
     }
 
-    public TestResolveResultDTO evaluateTest(List<TestResolveItemDTO> items) {
+// Correction without taking into account whether questions are marked as gradeable or not
+//    public TestResolveResultDTO evaluateTest(List<TestResolveItemDTO> items) {
+//
+//        int correct = 0;
+//
+//        for (TestResolveItemDTO item : items) {
+//
+//            boolean isCorrect = evaluateQuestion(
+//                    item.getIdQuestion(),
+//                    item.getSelectedAnswers()
+//            );
+//
+//            if (isCorrect) {
+//                correct++;
+//            }
+//
+//            TestResolve rez = new TestResolve();
+//            rez.setIdUser(item.getIdUser());
+//            rez.setIdTest(item.getIdTest());
+//            rez.setIdQuestion(item.getIdQuestion());
+//            rez.setResponse(isCorrect ? true : false);
+//
+//            rezolvareTestRepository.save(rez);
+//        }
+//
+//        double percentage = correct * 100.0 / items.size();
+//
+//        this.testResultsRepository.save(new TestResults(0, items.get(0).getIdUser(), items.get(0).getIdTest(), percentage));
+//        return new TestResolveResultDTO(
+//                items.size(),
+//                correct,
+//                percentage
+//        );
+//    }
 
-        int correct = 0;
+    public TestResolveResultDTO evaluateTest(List<TestResolveItemDTO> items) {
+        if (items == null || items.isEmpty()) {
+            return new TestResolveResultDTO(0, 0, 0.0);
+        }
+
+        String currentTestId = items.get(0).getIdTest();
+        String currentUserId = items.get(0).getIdUser();
+
+
+        int totalPossiblePoints = questionRepository.countGradedQuestionsByTestId(currentTestId);
+
+        int correctCount = 0;
 
         for (TestResolveItemDTO item : items) {
+
+            Question question = questionRepository.findByQuestionId_IdQuestion(item.getIdQuestion())
+                    .orElseThrow(() -> new RuntimeException("Question not found: " + item.getIdQuestion()));
 
             boolean isCorrect = evaluateQuestion(
                     item.getIdQuestion(),
                     item.getSelectedAnswers()
             );
 
-            if (isCorrect) {
-                correct++;
+            if (question.getScore() == 1 && isCorrect) {
+                correctCount++;
             }
 
             TestResolve rez = new TestResolve();
-            rez.setIdUser(item.getIdUser());
-            rez.setIdTest(item.getIdTest());
+            rez.setIdUser(currentUserId);
+            rez.setIdTest(currentTestId);
             rez.setIdQuestion(item.getIdQuestion());
-            rez.setResponse(isCorrect ? true : false);
-
+            rez.setResponse(isCorrect);
             rezolvareTestRepository.save(rez);
         }
 
-        double percentage = correct * 100.0 / items.size();
+        // 2. CALCULUL CORECT: puncte obținute / puncte maxime posibile
+        // Dacă testul are 50 de întrebări punctabile și userul a trimis 10 din care 3 corecte:
+        // (3 * 100.0) / 50 = 6.0%
+        double percentage = (totalPossiblePoints > 0)
+                ? (correctCount * 100.0 / totalPossiblePoints)
+                : 0.0;
 
-        this.testResultsRepository.save(new TestResults(0, items.get(0).getIdUser(), items.get(0).getIdTest(), percentage));
+        // Salvare în tabela de rezultate finale
+        this.testResultsRepository.save(new TestResults(0, currentUserId, currentTestId, percentage));
+
         return new TestResolveResultDTO(
-                items.size(),
-                correct,
+                totalPossiblePoints, // Utilizatorul vede la câte întrebări ar fi trebuit să răspundă
+                correctCount,
                 percentage
         );
     }
