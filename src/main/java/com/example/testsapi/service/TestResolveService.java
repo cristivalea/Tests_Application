@@ -143,7 +143,53 @@ public class TestResolveService {
 //                percentage
 //        );
 //    }
-
+//public TestResolveResultDTO evaluateTest(List<TestResolveItemDTO> items) {
+//    if (items == null || items.isEmpty()) {
+//        return new TestResolveResultDTO(0, 0, 0.0);
+//    }
+//
+//    String currentTestId = items.get(0).getIdTest();
+//    String currentUserId = items.get(0).getIdUser();
+//
+//
+//    int totalPossiblePoints = questionRepository.countGradedQuestionsByTestId(currentTestId);
+//
+//    int correctCount = 0;
+//
+//    for (TestResolveItemDTO item : items) {
+//
+//        Question question = questionRepository.findByQuestionId_IdQuestion(item.getIdQuestion())
+//                .orElseThrow(() -> new RuntimeException("Question not found: " + item.getIdQuestion()));
+//
+//        boolean isCorrect = evaluateQuestion(
+//                item.getIdQuestion(),
+//                item.getSelectedAnswers()
+//        );
+//
+//        if (question.getScore() == 1 && isCorrect) {
+//            correctCount++;
+//        }
+//
+//        TestResolve rez = new TestResolve();
+//        rez.setIdUser(currentUserId);
+//        rez.setIdTest(currentTestId);
+//        rez.setIdQuestion(item.getIdQuestion());
+//        rez.setResponse(isCorrect);
+//        rezolvareTestRepository.save(rez);
+//    }
+//
+//    double percentage = (totalPossiblePoints > 0)
+//            ? (correctCount * 100.0 / totalPossiblePoints)
+//            : 0.0;
+//
+//    this.testResultsRepository.save(new TestResults(0, currentUserId, currentTestId, percentage));
+//
+//    return new TestResolveResultDTO(
+//            totalPossiblePoints,
+//            correctCount,
+//            percentage
+//    );
+//}
     public TestResolveResultDTO evaluateTest(List<TestResolveItemDTO> items) {
         if (items == null || items.isEmpty()) {
             return new TestResolveResultDTO(0, 0, 0.0);
@@ -179,18 +225,14 @@ public class TestResolveService {
             rezolvareTestRepository.save(rez);
         }
 
-        // 2. CALCULUL CORECT: puncte obținute / puncte maxime posibile
-        // Dacă testul are 50 de întrebări punctabile și userul a trimis 10 din care 3 corecte:
-        // (3 * 100.0) / 50 = 6.0%
         double percentage = (totalPossiblePoints > 0)
                 ? (correctCount * 100.0 / totalPossiblePoints)
                 : 0.0;
 
-        // Salvare în tabela de rezultate finale
         this.testResultsRepository.save(new TestResults(0, currentUserId, currentTestId, percentage));
 
         return new TestResolveResultDTO(
-                totalPossiblePoints, // Utilizatorul vede la câte întrebări ar fi trebuit să răspundă
+                totalPossiblePoints,
                 correctCount,
                 percentage
         );
