@@ -66,4 +66,20 @@ List<Question> findBySecondaryObjectiveAndLevel(
     WHERE qt.idTest = :testId AND q.score = 1
 """)
     int countGradedQuestionsByTestId(@Param("testId") String testId);
+
+    long countByLevel(String level);
+
+    long countByDomain(String domain);
+
+    @Query("SELECT DISTINCT q.level FROM Question q ORDER BY q.level")
+    List<String> findDistinctLevels();
+
+    @Query("SELECT DISTINCT q.domain FROM Question q ORDER BY q.domain")
+    List<String> findDistinctDomains();
+
+    long countByLevelAndDomain(String level, String domain);
+
+    List<Question> findByLevel(String level);
+
+    List<Question> findByDomain(String domain);
 }

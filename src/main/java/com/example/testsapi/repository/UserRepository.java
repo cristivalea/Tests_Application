@@ -1,5 +1,7 @@
 package com.example.testsapi.repository;
 
+import com.example.testsapi.entity.Role;
+import com.example.testsapi.entity.Status;
 import com.example.testsapi.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +25,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query("SELECT u FROM User u WHERE TRIM(u.phoneNumber) = :phoneNumber")
     Optional<User> findByPhoneNumber(@Param("phoneNumber") String phoneNumber);
+
+    long countByStatus(Status status);
+    long countByRole(Role role);
 }
