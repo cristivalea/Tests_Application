@@ -68,6 +68,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/testResults/**").permitAll()
                 .requestMatchers("/statistics/**").permitAll()
                 .requestMatchers("/test_duration/**").permitAll()
+                .requestMatchers("/api/domain-tests/**").permitAll()
                 .anyRequest().authenticated();
 
         http.authenticationProvider(authenticationProvider(null, null));

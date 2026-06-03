@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<obiective>
+  <obiectiv id="1">
+    <name>Modulul unui număr real</name>
+    <label>ModululNumarReal</label>
+    <subobiective>
+      <obiectiv id="11">
+        <name>Definirea modulului pe ramuri și interpretarea geometrică (distanța față de 0</name>
+        <label>DefinireaModululuiRamuri</label>
+      </obiectiv>
+      <obiectiv id="12">
+        <name>Rezolvarea ecuațiilor și inecuațiilor cu modul, cu discuție pe cazuri.</name>
+        <label>RezolvareaEcuatiilorInecuatiilor</label>
+      </obiectiv>
+      <obiectiv id="13">
+        <name>Recunoașterea funcției modul ca funcție definită pe ramuri</name>
+        <label>RecunoastereaFunctieiModul</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="2">
+    <name>Parte întreagă, parte fracționară</name>
+    <label>ParteIntreagaParte</label>
+    <subobiective>
+      <obiectiv id="21">
+        <name>Calcularea părții întregi/fracționare pentru numere date</name>
+        <label>CalculareaPartiiIntregi</label>
+      </obiectiv>
+      <obiectiv id="22">
+        <name>Recunoașterea funcției parte întreagă și parte fracționară ca funcții pe ramuri</name>
+        <label>RecunoastereaFunctieiParte</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="3">
+    <name>Elemente de logică. Inducția matematică</name>
+    <label>ElementeLogicaInductia</label>
+    <subobiective>
+      <obiectiv id="31">
+        <name>Demonstrarea egalităților</name>
+        <label>DemonstrareaEgalitatilor</label>
+      </obiectiv>
+      <obiectiv id="32">
+        <name>Calculul sumelor</name>
+        <label>CalcululSumelor</label>
+      </obiectiv>
+      <obiectiv id="33">
+        <name>Divizibilitate</name>
+        <label>Divizibilitate</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="4">
+    <name>Progresii (aritmetice și geometrice)</name>
+    <label>ProgresiiAritmeticeGeometrice</label>
+    <subobiective>
+      <obiectiv id="41">
+        <name>Identificarea rației și a unui termen, pornind de la enumerare.</name>
+        <label>IdentificareaRatieiTermen</label>
+      </obiectiv>
+      <obiectiv id="42">
+        <name>Termenul general pentru progresii aritmetice si geometrice</name>
+        <label>TermenulGeneralProgresii</label>
+      </obiectiv>
+      <obiectiv id="43">
+        <name>Suma primilor n termeni pentru ambele tipuri.</name>
+        <label>SumaPrimilorN</label>
+      </obiectiv>
+      <obiectiv id="44">
+        <name>Caracterizarea prin relația dintre trei termeni consecutivi (medie aritmetică / geometrică).</name>
+        <label>CaracterizareaPrinRelatia</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="5">
+    <name>Funcția de gradul întâi</name>
+    <label>FunctiaGradulIntai</label>
+    <subobiective>
+      <obiectiv id="51">
+        <name>Monotonia (după semnul coeficientului a).</name>
+        <label>MonotoniaDupaSemnul</label>
+      </obiectiv>
+      <obiectiv id="52">
+        <name>Mărginirea pe intervale.</name>
+        <label>MarginireaIntervale</label>
+      </obiectiv>
+      <obiectiv id="53">
+        <name>Semnul funcției (tabel de semn)</name>
+        <label>SemnulFunctieiTabel</label>
+      </obiectiv>
+      <obiectiv id="54">
+        <name>Compunerea funcțiilor</name>
+        <label>CompunereaFunctiilor</label>
+      </obiectiv>
+      <obiectiv id="55">
+        <name>Citirea grafică: domeniu, imagine, intersecții cu axele.</name>
+        <label>CitireaGraficaDomeniu</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="6">
+    <name>Funcția de gradul al doilea</name>
+    <label>FunctiaGradulDoilea</label>
+    <subobiective>
+      <obiectiv id="61">
+        <name>Ecuația de gradul II și relațiile lui Viète</name>
+        <label>EcuatiaGradulIi</label>
+      </obiectiv>
+      <obiectiv id="62">
+        <name>Reprezentarea grafică: vârf, axă de simetrie, intersecții cu axele.</name>
+        <label>ReprezentareaGraficaVarf</label>
+      </obiectiv>
+      <obiectiv id="63">
+        <name>Semnul funcției de gradul II și inecuații asociate (interpretare geometrică — poziția parabolei față de Ox).</name>
+        <label>SemnulFunctieiGradul</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="7">
+    <name>Vectori în reper cartezian</name>
+    <label>VectoriReperCartezian</label>
+    <subobiective>
+      <obiectiv id="71">
+        <name>Egalitatea a doi vectori și condiția pe coordonate.</name>
+        <label>EgalitateaVectoriConditia</label>
+      </obiectiv>
+      <obiectiv id="72">
+        <name>Lungimea unui vector</name>
+        <label>LungimeaVector</label>
+      </obiectiv>
+      <obiectiv id="73">
+        <name>Adunarea vectorilor (pe coordonate / regula paralelogramului).</name>
+        <label>AdunareaVectorilorCoordonate</label>
+      </obiectiv>
+      <obiectiv id="74">
+        <name>Înmulțirea cu un scalar și interpretarea geometrică.</name>
+        <label>InmultireaUnScalar</label>
+      </obiectiv>
+      <obiectiv id="75">
+        <name>Formula distanței dintre două puncte</name>
+        <label>FormulaDistanteiDintre</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="8">
+    <name>Trigonometrie</name>
+    <label>Trigonometrie</label>
+    <subobiective>
+      <obiectiv id="81">
+        <name>Funcțiile sin, cos, tg, ctg și proprietățile lor (semn pe cadrane, periodicitate, reducere la primul cadran).</name>
+        <label>FunctiileSinCos</label>
+      </obiectiv>
+      <obiectiv id="82">
+        <name>Formulele pentru sumă/diferență</name>
+        <label>FormuleleSumaDiferenta</label>
+      </obiectiv>
+      <obiectiv id="83">
+        <name>Formulele unghiului dublu</name>
+        <label>FormuleleUnghiuluiDublu</label>
+      </obiectiv>
+      <obiectiv id="84">
+        <name>Transformarea sumelor în produse</name>
+        <label>TransformareaSumelorProduse</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+</obiective>

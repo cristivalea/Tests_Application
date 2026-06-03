@@ -1281,5 +1281,8 @@ public class TestService {
         TestOfQuestions testOfQuestions = new TestOfQuestions(test, questions);
         return testOfQuestions;
     }
+
+    //extragere intrebari si generare teste si in functie de domeniu
+
 }
 

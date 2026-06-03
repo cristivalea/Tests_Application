@@ -82,4 +82,31 @@ List<Question> findBySecondaryObjectiveAndLevel(
     List<Question> findByLevel(String level);
 
     List<Question> findByDomain(String domain);
+
+ //extragere intrebari si in functie de domeniu
+ @Query(value = """
+    SELECT * FROM question q
+    WHERE q.level = :level
+      AND JSON_UNQUOTE(JSON_EXTRACT(q.question, '$.mainObjectives[0].id')) = :mainObjectiveId
+      AND JSON_UNQUOTE(JSON_EXTRACT(q.question, '$.secondaryObjectives[0].id')) = :secondaryObjectiveId
+      AND q.domain IN (:domains)
+    """, nativeQuery = true)
+ List<Question> findByLevelAndObjectivesAndDomain(
+         @Param("level") String level,
+         @Param("mainObjectiveId") int mainObjectiveId,
+         @Param("secondaryObjectiveId") int secondaryObjectiveId,
+         @Param("domains") List<String> domains);
+
+    // mirror al findBySecondaryObjectiveAndLevel (JPQL + JOIN) + domeniu
+    @Query("""
+    SELECT q FROM Question q
+    JOIN SecondaryObjective so ON so.idQuestion = q.questionId.idQuestion
+    WHERE so.idObjectiv = :subId
+      AND q.level = :level
+      AND q.domain IN :domains
+    """)
+    List<Question> findBySecondaryObjectiveAndLevelAndDomain(
+            @Param("subId") int subId,
+            @Param("level") String level,
+            @Param("domains") List<String> domains);
 }

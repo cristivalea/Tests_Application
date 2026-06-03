@@ -109,11 +109,14 @@ public class QuestionService {
         TimeLengthQuestion timeLengthQuestion = new TimeLengthQuestion();
         Integer time = null;
         if(level.equals("SOFTQUESTION")){
-            time = 60;
+//            time = 60;
+            time = 180;
         } else if(level.equals("MIDLELEVELQUESTION")){
-            time = 100;
+//            time = 100;
+            time = 360;
         } else if(level.equals("HARDQUESTION")){
-            time = 150;
+//            time = 150;
+            time = 600;
         }
         timeLengthQuestion.setIdQuestion(idQuestion);
         timeLengthQuestion.setTimeLength(time);

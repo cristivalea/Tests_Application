@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<obiective>
+  <obiectiv id="1">
+    <name>Permutari</name>
+    <label>Permutari</label>
+    <subobiective>
+      <obiectiv id="11">
+        <name>Noțiunea de permutare; compunerea permutărilor și proprietăți</name>
+        <label>NotiuneaPermutareCompunerea</label>
+      </obiectiv>
+      <obiectiv id="12">
+        <name>Inversiuni, semnul unei permutări</name>
+        <label>InversiuniSemnulPermutari</label>
+      </obiectiv>
+      <obiectiv id="13">
+        <name>Utilizarea permutărilor ca instrument pentru definirea determinantului de ordin n</name>
+        <label>UtilizareaPermutarilorInstrument</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="2">
+    <name>Matrice</name>
+    <label>Matrice</label>
+    <subobiective>
+      <obiectiv id="21">
+        <name>Mulțimi de matrice; operații (adunare, înmulțire, înmulțirea cu un scalar)</name>
+        <label>MultimiMatriceOperatii</label>
+      </obiectiv>
+      <obiectiv id="22">
+        <name>Necomutativitatea înmulțirii matricelor (A·B ≠ B·A)</name>
+        <label>NecomutativitateaInmultiriiMatricelor</label>
+      </obiectiv>
+      <obiectiv id="23">
+        <name>Ridicarea la putere a unei matrice pătratice prin metode diverse (inducție, binomul lui Newton)</name>
+        <label>RidicareaPutereMatrice</label>
+      </obiectiv>
+      <obiectiv id="24">
+        <name>Ecuații matriceale</name>
+        <label>EcuatiiMatriceale</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="3">
+    <name>Determinați</name>
+    <label>Determinati</label>
+    <subobiective>
+      <obiectiv id="31">
+        <name>Reguli de calcul (regula triunghiului, regula lui Sarrus pentru ordin 3)</name>
+        <label>ReguliCalculRegula</label>
+      </obiectiv>
+      <obiectiv id="32">
+        <name>Proprietățile determinanților (efectul interschimbării liniilor/coloanelor etc.)</name>
+        <label>ProprietatileDeterminantilorEfectul</label>
+      </obiectiv>
+      <obiectiv id="33">
+        <name>Calculul determinanților de ordin n (preferabil ordin 3 sau 4)</name>
+        <label>CalcululDeterminantilorOrdin</label>
+      </obiectiv>
+      <obiectiv id="34">
+        <name>Exprimarea în limbaj simbolic a unui determinant prin dezvoltare după o linie/coloană</name>
+        <label>ExprimareaLimbajSimbolic</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="4">
+    <name>Aplicații ale determinanților în geometrie</name>
+    <label>AplicatiiDeterminantilorGeometrie</label>
+    <subobiective>
+      <obiectiv id="41">
+        <name>Aria unui triunghi cu ajutorul determinantului</name>
+        <label>AriaTriunghiAjutorul</label>
+      </obiectiv>
+      <obiectiv id="42">
+        <name>Condiția de coliniaritate a trei puncte</name>
+        <label>ConditiaColiniaritatePuncte</label>
+      </obiectiv>
+      <obiectiv id="43">
+        <name>Determinarea unor distanțe prin exprimarea ariei în două moduri</name>
+        <label>DeterminareaDistantePrin</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="5">
+    <name>Rangul unei matrice</name>
+    <label>RangulMatrice</label>
+    <subobiective>
+      <obiectiv id="51">
+        <name>Definirea rangului prin minori</name>
+        <label>DefinireaRanguluiPrin</label>
+      </obiectiv>
+      <obiectiv id="52">
+        <name>Legătura dintre rang și compatibilitatea unui sistem de ecuații liniare</name>
+        <label>LegaturaDintreRang</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="6">
+    <name>Inversa unei matrice. Ecuații matriceale</name>
+    <label>InversaMatriceEcuatii</label>
+    <subobiective>
+      <obiectiv id="61">
+        <name>Condiția de inversabilitate (determinant nenul)</name>
+        <label>ConditiaInversabilitateDeterminant</label>
+      </obiectiv>
+      <obiectiv id="62">
+        <name>Determinarea inversei (definiție / complemenți algebrici / metoda Gauss)</name>
+        <label>DeterminareaInverseiDefinitie</label>
+      </obiectiv>
+      <obiectiv id="63">
+        <name>Rezolvarea ecuațiilor matriceale cu ajutorul inversei</name>
+        <label>RezolvareaEcuatiilorMatriceale</label>
+      </obiectiv>
+      <obiectiv id="64">
+        <name>Analiza inversabilității pentru o matrice parametrică</name>
+        <label>AnalizaInversabilitatiiO</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="7">
+    <name>Sisteme de ecuații liniare</name>
+    <label>SistemeEcuatiiLiniare</label>
+    <subobiective>
+      <obiectiv id="71">
+        <name>Teorema lui Cramer (sisteme compatibil determinate)</name>
+        <label>TeoremaLuiCramer</label>
+      </obiectiv>
+      <obiectiv id="72">
+        <name>Sisteme compatibile nedeterminate (simplu/dublu nedeterminate)</name>
+        <label>SistemeCompatibileNedeterminate</label>
+      </obiectiv>
+      <obiectiv id="73">
+        <name>Sisteme incompatibile</name>
+        <label>SistemeIncompatibile</label>
+      </obiectiv>
+      <obiectiv id="74">
+        <name>Studiul compatibilității: teorema Kronecker-Capelli, teorema lui Rouché</name>
+        <label>StudiulCompatibilitatiiTeorema</label>
+      </obiectiv>
+      <obiectiv id="75">
+        <name>Metoda lui Gauss</name>
+        <label>MetodaLuiGauss</label>
+      </obiectiv>
+      <obiectiv id="76">
+        <name>Scrierea matriceală a unui sistem</name>
+        <label>ScriereaMatricealaSistem</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="8">
+    <name>Sisteme omogene</name>
+    <label>SistemeOmogene</label>
+    <subobiective>
+      <obiectiv id="81">
+        <name>Condiția de existență a soluțiilor nenule</name>
+        <label>ConditiaExistentaSolutiilor</label>
+      </obiectiv>
+      <obiectiv id="82">
+        <name>Legătura cu rangul matricei coeficienților</name>
+        <label>LegaturaRangulMatricei</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="9">
+    <name>Șiruri</name>
+    <label>Siruri</label>
+    <subobiective>
+      <obiectiv id="91">
+        <name>Monotonie</name>
+        <label>Monotonie</label>
+      </obiectiv>
+      <obiectiv id="92">
+        <name>Mărginire</name>
+        <label>Marginire</label>
+      </obiectiv>
+      <obiectiv id="93">
+        <name>Convergență; teorema lui Weierstrass (monotonie + mărginire ⇒ convergență)</name>
+        <label>ConvergentaTeoremaLui</label>
+      </obiectiv>
+      <obiectiv id="94">
+        <name>Șiruri definite recursiv</name>
+        <label>SiruriDefiniteRecursiv</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="10">
+    <name>Limite de șiruri</name>
+    <label>LimiteSiruri</label>
+    <subobiective>
+      <obiectiv id="101">
+        <name>Definiția cu vecinătăți; unicitatea limitei</name>
+        <label>DefinitiaVecinatatiUnicitatea</label>
+      </obiectiv>
+      <obiectiv id="102">
+        <name>Operații cu șiruri convergente</name>
+        <label>OperatiiSiruriConvergente</label>
+      </obiectiv>
+      <obiectiv id="103">
+        <name>Criterii de existență a limitei (criteriul majorării, criteriul cleștelui)</name>
+        <label>CriteriiExistentaLimitei</label>
+      </obiectiv>
+      <obiectiv id="104">
+        <name>Limite remarcabile: șirul (1 + 1/n)ⁿ și numărul e</name>
+        <label>LimiteRemarcabileSirul</label>
+      </obiectiv>
+      <obiectiv id="105">
+        <name>Cazuri de nedeterminare la șiruri</name>
+        <label>CazuriNedeterminareSiruri</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="11">
+    <name>Funcții; limite de funcții</name>
+    <label>FunctiiLimiteFunctii</label>
+    <subobiective>
+      <obiectiv id="111">
+        <name>Punct de acumulare; limita într-un punct (definiția cu șiruri); limite laterale</name>
+        <label>PunctAcumulareLimita</label>
+      </obiectiv>
+      <obiectiv id="112">
+        <name>Operații cu limite de funcții; limitele funcțiilor uzuale</name>
+        <label>OperatiiLimiteFunctii</label>
+      </obiectiv>
+      <obiectiv id="113">
+        <name>Cazuri exceptate (nedeterminări: 0/0, ∞/∞, ∞−∞, 0·∞, 1^∞ etc.)</name>
+        <label>CazuriExceptateNedeterminari</label>
+      </obiectiv>
+      <obiectiv id="114">
+        <name>Limite remarcabile (sin x / x, (1+x)^(1/x), ln(1+x)/x etc.)</name>
+        <label>LimiteRemarcabileSin</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="12">
+    <name>Continuitate</name>
+    <label>Continuitate</label>
+    <subobiective>
+      <obiectiv id="121">
+        <name>Continuitatea într-un punct (criteriul cu șiruri); continuitate laterală</name>
+        <label>ContinuitateaIntrUn</label>
+      </obiectiv>
+      <obiectiv id="122">
+        <name>Puncte de discontinuitate; operații cu funcții continue</name>
+        <label>PuncteDiscontinuitateOperatii</label>
+      </obiectiv>
+      <obiectiv id="123">
+        <name>Proprietatea valorilor intermediare; semnul unei funcții continue pe interval</name>
+        <label>ProprietateaValorilorIntermediare</label>
+      </obiectiv>
+      <obiectiv id="124">
+        <name>Studiul existenței soluțiilor unei ecuații folosind continuitatea</name>
+        <label>StudiulExistenteiSolutiilor</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="13">
+    <name>Derivabilitate</name>
+    <label>Derivabilitate</label>
+    <subobiective>
+      <obiectiv id="131">
+        <name>Derivatele funcțiilor elementare și compuse</name>
+        <label>DerivateleFunctiilorElementare</label>
+      </obiectiv>
+      <obiectiv id="132">
+        <name>Reguli de derivare; operații cu funcții derivabile</name>
+        <label>ReguliDerivareOperatii</label>
+      </obiectiv>
+      <obiectiv id="133">
+        <name>Interpretarea geometrică a derivatei (tangenta la grafic); legătura derivabilitate–continuitate</name>
+        <label>InterpretareaGeometricaDerivatei</label>
+      </obiectiv>
+      <obiectiv id="134">
+        <name>Rolul derivatei I (monotonie, semn) și rolul derivatei a II-a (convexitate/concavitate) în studiul funcțiilor</name>
+        <label>RolulDerivateiI</label>
+      </obiectiv>
+      <obiectiv id="135">
+        <name>Puncte de extrem (max, min) și puncte de inflexiune; teorema lui Fermat</name>
+        <label>PuncteExtremMax</label>
+      </obiectiv>
+      <obiectiv id="136">
+        <name>Demonstrarea de inegalități cu ajutorul variației unei funcții</name>
+        <label>DemonstrareaInegalitatiAjutorul</label>
+      </obiectiv>
+      <obiectiv id="137">
+        <name>Teorema lui Rolle, șirul lui Rolle, teorema lui Lagrange și consecințe</name>
+        <label>TeoremaLuiRolle</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+  <obiectiv id="14">
+    <name>Regula lui l'Hôpital</name>
+    <label>RegulaLuiL</label>
+    <subobiective>
+      <obiectiv id="141">
+        <name>Teoremele lui L'Hôpital (fără demonstrație)</name>
+        <label>TeoremeleLuiL</label>
+      </obiectiv>
+      <obiectiv id="142">
+        <name>Aplicarea la cazurile de nedeterminare 0/0 și ∞/∞</name>
+        <label>AplicareaCazurileNedeterminare</label>
+      </obiectiv>
+    </subobiective>
+  </obiectiv>
+</obiective>
